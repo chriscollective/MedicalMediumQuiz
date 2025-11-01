@@ -13,11 +13,11 @@ import { NatureDecoration } from "../components/NatureDecoration";
 import { FloatingHerbs } from "../components/FloatingHerbs";
 import { Sparkles, ArrowLeft } from "lucide-react";
 
-interface AboutProps {
+interface PrivacyPolicyProps {
   onBack: () => void;
 }
 
-export function About({ onBack }: AboutProps) {
+export function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#FAFAF7] via-[#F7E6C3]/20 to-[#A8CBB7]/10">
       {/* 背景（沿用首頁） */}
@@ -37,13 +37,13 @@ export function About({ onBack }: AboutProps) {
       <NatureDecoration />
       <FloatingHerbs />
 
-      {/* 透明頂部列（置中標題，右側返回） */}
+      {/* 透明頂部列（置中標題） */}
       <div className="relative z-10 bg-transparent pt-100  ">
         <div className="container mx-auto px-4 py-16 relative">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="flex items-center gap-2 text-[#2d3436]">
               <Sparkles className="w-6 h-6 text-[#A8CBB7]" />
-              <span className="font-medium">關於本站</span>
+              <span className="font-medium">隱私政策</span>
               <Sparkles className="w-6 h-6 text-[#A8CBB7]" />
             </div>
           </div>
@@ -59,59 +59,25 @@ export function About({ onBack }: AboutProps) {
           transition={{ duration: 0.6 }}
           className="space-y-6"
         >
-          <Card className="border-[#A8CBB7]/20 mt-8">
+          <Card className="border-[#A8CBB7]/20">
             <CardHeader>
-              <CardTitle className="text-[#2d3436]">我們的目標</CardTitle>
+              <CardTitle className="text-[#2d3436]">題庫與隱私</CardTitle>
               <CardDescription className="text-[#636e72]">
-                以輕量有趣的方式，幫助讀者複習與檢視「醫療靈媒」相關知識。
+                題目來源與資料使用說明
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-[#2d3436] space-y-4">
-              <p>
-                本站為非官方學習平台，透過單選、多選、填空等題型，協助你快速檢視章節重點與理解程度。
-              </p>
-              <p>
-                你可以選擇書籍與難度進行 20
-                題測驗，完成後立即查看分數與錯題清單，方便回顧與精進。
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#A8CBB7]/20">
-            <CardHeader>
-              <CardTitle className="text-[#2d3436]">免責聲明</CardTitle>
-            </CardHeader>
-            <CardContent className="text-[#2d3436]">
-              本站內容僅供教育與自我檢測，不構成任何醫療建議、診斷或治療。如有健康疑慮，請諮詢合格醫療人員。本站與原作者或出版社無任何關聯或授權。
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#A8CBB7]/20">
-            <CardHeader>
-              <CardTitle className="text-[#2d3436]">關於站長</CardTitle>
-            </CardHeader>
-            <CardContent className="text-[#2d3436]">
-              <p>
-                我是站長Chris，因為喜愛醫療靈媒的內容而製作了這個網站，希望各位粉絲可以玩得愉快!
-              </p>
-              <p>
-                讓我們一起走在療癒的路上，感謝慈悲高靈、安東尼、以及醫療靈媒粉絲團各位熱情的粉絲們!
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#A8CBB7]/20">
-            <CardHeader>
-              <CardTitle className="text-[#2d3436]">聯絡方式</CardTitle>
-            </CardHeader>
-            <CardContent className="text-[#2d3436]">
-              <p>
-                意見回饋與錯誤回報：請寄信至 yourmail@example.com
-                或填寫表單（連結）。
-              </p>
-              <p>
-                內容修正與下架請求：請提供具體頁碼/題目與說明，我們會盡速處理。
-              </p>
+            <CardContent className="text-[#2d3436] space-y-3">
+              <ul className="list-disc pl-5 space-y-2">
+                <li>
+                  題目依據相關書籍的公開內容整理撰寫，用於學習練習，並持續修訂。
+                </li>
+                <li>
+                  本站不蒐集可識別個資；僅在你的瀏覽器建立隨機代碼（UUID）以統計作答表現。
+                </li>
+                <li>
+                  伺服器僅保存匿名代碼、分數、作答時間、所選書籍與難度，用於排行榜與統計。
+                </li>
+              </ul>
             </CardContent>
           </Card>
 

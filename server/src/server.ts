@@ -8,6 +8,7 @@ import quizzesRouter from './routes/quizzes';
 import adminRouter from './routes/admin';
 import analyticsRouter from './routes/analytics';
 import leaderboardRouter from './routes/leaderboardRoutes';
+import booksRouter from './routes/books';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/questions', questionsRouter);
 app.use('/api/quizzes', quizzesRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/leaderboard', leaderboardRouter);
+app.use('/api/books', booksRouter);
 
 // Error handling
 app.use(errorHandler);

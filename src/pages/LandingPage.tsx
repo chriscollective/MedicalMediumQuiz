@@ -13,6 +13,7 @@ interface LandingPageProps {
   onAdminClick?: () => void;
   onLeaderboardClick?: () => void;
   onAboutClick?: () => void;
+  onPrivacyClick?: () => void;
 }
 
 export function LandingPage({
@@ -20,6 +21,7 @@ export function LandingPage({
   onAdminClick,
   onLeaderboardClick,
   onAboutClick,
+  onPrivacyClick,
 }: LandingPageProps) {
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState<"beginner" | "advanced">(
@@ -112,7 +114,7 @@ export function LandingPage({
                 variant={difficulty === "beginner" ? "default" : "outline"}
                 onClick={() => setDifficulty("beginner")}
                 className={`
-                  px-8 py-6 rounded-2xl transition-all duration-300
+                  px-8 py-6 rounded-2xl cursor-pointer transition-all duration-300
                   ${
                     difficulty === "beginner"
                       ? "bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] text-white shadow-lg hover:shadow-xl"
@@ -126,7 +128,7 @@ export function LandingPage({
                 variant={difficulty === "advanced" ? "default" : "outline"}
                 onClick={() => setDifficulty("advanced")}
                 className={`
-                  px-8 py-6 rounded-2xl transition-all duration-300
+                  px-8 py-6 rounded-2xl cursor-pointer transition-all duration-300
                   ${
                     difficulty === "advanced"
                       ? "bg-gradient-to-r from-[#E5C17A] to-[#d4b86a] text-white shadow-lg hover:shadow-xl"
@@ -150,7 +152,7 @@ export function LandingPage({
               onClick={handleStart}
               disabled={selectedBooks.length === 0}
               className="
-                px-12 py-8 rounded-3xl
+                px-12 py-8 rounded-3xl cursor-pointer
                 bg-gradient-to-r from-[#A8CBB7] via-[#9fb8a8] to-[#A8CBB7]
                 text-white shadow-2xl
                 hover:shadow-[0_0_40px_rgba(168,203,183,0.5)]
@@ -197,7 +199,10 @@ export function LandingPage({
             榮耀排行榜
           </span>
           <span>｜</span>
-          <span className="hover:text-[#A8CBB7] cursor-pointer transition-colors">
+          <span
+            className="hover:text-[#A8CBB7] cursor-pointer transition-colors"
+            onClick={onPrivacyClick}
+          >
             隱私政策
           </span>
           <span>｜</span>
