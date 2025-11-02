@@ -44,8 +44,8 @@ export function QuizPage({
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [quizId, setQuizId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [apiQuestions, setApiQuestions] = useState<ApiQuestion[]>([]);
 
   // 載入題目
   useEffect(() => {
@@ -120,37 +120,8 @@ export function QuizPage({
         });
 
         setQuestions(uiQuestions);
+        setApiQuestions(apiQuestions); // 保存 API 題目資料以便提交時使用
         setError(null);
-
-        // 建立測驗記錄
-        try {
-          const userId = getUserId();
-          // 對於多本書，使用第一本書作為主要書籍記錄（或可以改成「混合」）
-          const primaryBook =
-            books.length > 1
-              ? getBookByDisplay(books[0])
-              : getBookByDisplay(books[0] || "《神奇西芹汁》");
-
-          console.log("準備建立測驗記錄:", {
-            userId,
-            book: primaryBook,
-            difficulty: apiDifficulty,
-            questionCount: apiQuestions.length,
-          });
-
-          const quiz = await createQuiz({
-            userId,
-            book: primaryBook,
-            difficulty: apiDifficulty,
-            questionIds: apiQuestions.map((q) => q._id),
-          });
-          setQuizId(quiz._id);
-          console.log("✅ 測驗記錄已建立:", quiz._id);
-        } catch (quizErr: any) {
-          console.error("❌ 建立測驗記錄失敗:", quizErr);
-          console.error("錯誤詳情:", quizErr.response?.data || quizErr.message);
-          // 不影響繼續作答，只是無法記錄
-        }
       } catch (err: any) {
         console.error("載入題目失敗:", err);
         setError(err.message || "載入題目失敗，請稍後再試");
@@ -219,16 +190,36 @@ export function QuizPage({
   };
 
   const handleSubmit = async () => {
-    if (!quizId) {
-      console.error("無測驗 ID，無法提交");
-      onComplete(answers);
-      return;
-    }
-
     try {
       setSubmitting(true);
 
-      // 轉換答案格式：從 string/string[] 轉為 index number/number[]
+      // 步驟 1: 建立測驗記錄
+      const userId = getUserId();
+      const apiDifficulty = getDifficultyByKey(difficulty);
+
+      // 對於多本書，使用第一本書作為主要書籍記錄
+      const primaryBook =
+        books.length > 1
+          ? getBookByDisplay(books[0])
+          : getBookByDisplay(books[0] || "《神奇西芹汁》");
+
+      console.log("準備建立測驗記錄:", {
+        userId,
+        book: primaryBook,
+        difficulty: apiDifficulty,
+        questionCount: apiQuestions.length,
+      });
+
+      const quiz = await createQuiz({
+        userId,
+        book: primaryBook,
+        difficulty: apiDifficulty,
+        questionIds: apiQuestions.map((q) => q._id),
+      });
+
+      console.log("✅ 測驗記錄已建立:", quiz._id);
+
+      // 步驟 2: 轉換答案格式：從 string/string[] 轉為 index number/number[]
       const submissionAnswers = questions.map((question) => {
         const userAnswer = answers[question.id];
         let convertedAnswer: number | number[] | null = null;
@@ -258,8 +249,8 @@ export function QuizPage({
         };
       });
 
-      // 提交到 API
-      const result = await submitQuiz(quizId, {
+      // 步驟 3: 提交答案到 API
+      const result = await submitQuiz(quiz._id, {
         answers: submissionAnswers,
       });
 

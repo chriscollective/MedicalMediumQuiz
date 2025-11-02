@@ -1,11 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { NatureAccents } from '../components/NatureAccents';
-import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { ArrowLeft, Users, Award, TrendingUp, BookOpen, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
+import { NatureAccents } from "../components/NatureAccents";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import {
+  ArrowLeft,
+  Users,
+  Award,
+  TrendingUp,
+  BookOpen,
+  Loader2,
+  PencilLine,
+} from "lucide-react";
 import {
   getAnalyticsSummary,
   AnalyticsSummary,
@@ -14,8 +45,8 @@ import {
   getWrongQuestions,
   GradeDistribution,
   BookDistribution,
-  WrongQuestion
-} from '../services/analyticsService';
+  WrongQuestion,
+} from "../services/analyticsService";
 
 interface AnalyticsProps {
   onBack: () => void;
@@ -23,22 +54,32 @@ interface AnalyticsProps {
 
 // Color mapping for grades
 const gradeColors: Record<string, string> = {
-  'S': '#E5C17A',
-  'A+': '#A8CBB7',
-  'A': '#9fb8a8',
-  'B+': '#F7E6C3',
-  'B': '#d9dcd9',
-  'C+': '#b0b0b0',
-  'F': '#8a8a8a'
+  S: "#E5C17A",
+  "A+": "#A8CBB7",
+  A: "#9fb8a8",
+  "B+": "#F7E6C3",
+  B: "#d9dcd9",
+  "C+": "#b0b0b0",
+  F: "#8a8a8a",
 };
 
 // Color mapping for books
-const bookColors: string[] = ['#A8CBB7', '#E5C17A', '#F7E6C3', '#9fb8a8', '#d9dcd9'];
+const bookColors: string[] = [
+  "#A8CBB7",
+  "#E5C17A",
+  "#F7E6C3",
+  "#9fb8a8",
+  "#d9dcd9",
+];
 
 export function Analytics({ onBack }: AnalyticsProps) {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
-  const [gradeDistribution, setGradeDistribution] = useState<Array<GradeDistribution & { fill: string }>>([]);
-  const [bookParticipation, setBookParticipation] = useState<Array<BookDistribution & { fill: string }>>([]);
+  const [gradeDistribution, setGradeDistribution] = useState<
+    Array<GradeDistribution & { fill: string }>
+  >([]);
+  const [bookParticipation, setBookParticipation] = useState<
+    Array<BookDistribution & { fill: string }>
+  >([]);
   const [wrongQuestions, setWrongQuestions] = useState<WrongQuestion[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,34 +89,34 @@ export function Analytics({ onBack }: AnalyticsProps) {
         setLoading(true);
 
         // 並行載入所有統計資料
-        const [summaryData, gradeData, bookData, wrongQuestionsData] = await Promise.all([
-          getAnalyticsSummary(),
-          getGradeDistribution(),
-          getBookDistribution(),
-          getWrongQuestions(10)
-        ]);
+        const [summaryData, gradeData, bookData, wrongQuestionsData] =
+          await Promise.all([
+            getAnalyticsSummary(),
+            getGradeDistribution(),
+            getBookDistribution(),
+            getWrongQuestions(10),
+          ]);
 
         setSummary(summaryData);
 
         // 為等級分布添加顏色
-        const gradeWithColors = gradeData.map(item => ({
+        const gradeWithColors = gradeData.map((item) => ({
           ...item,
-          fill: gradeColors[item.name] || '#A8CBB7'
+          fill: gradeColors[item.name] || "#A8CBB7",
         }));
         setGradeDistribution(gradeWithColors);
 
         // 為書籍分布添加顏色
         const bookWithColors = bookData.map((item, index) => ({
           ...item,
-          fill: bookColors[index % bookColors.length]
+          fill: bookColors[index % bookColors.length],
         }));
         setBookParticipation(bookWithColors);
 
         // 設定錯題排行榜
         setWrongQuestions(wrongQuestionsData);
-
       } catch (error) {
-        console.error('載入統計資料失敗:', error);
+        console.error("載入統計資料失敗:", error);
       } finally {
         setLoading(false);
       }
@@ -86,7 +127,7 @@ export function Analytics({ onBack }: AnalyticsProps) {
 
   // 獲取平均等級（基於分數）
   const getAverageGrade = () => {
-    if (!summary) return '-';
+    if (!summary) return "-";
     return summary.avgGrade;
   };
 
@@ -94,7 +135,7 @@ export function Analytics({ onBack }: AnalyticsProps) {
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] to-[#F7E6C3]/20 relative overflow-hidden">
       {/* Nature Accents */}
       <NatureAccents variant="minimal" />
-      
+
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg shadow-sm border-b border-[#A8CBB7]/20">
         <div className="container mx-auto px-4 py-4">
@@ -111,11 +152,11 @@ export function Analytics({ onBack }: AnalyticsProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Overview Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           {loading ? (
             // Loading state
             <div className="col-span-3 flex items-center justify-center py-12">
@@ -126,22 +167,28 @@ export function Analytics({ onBack }: AnalyticsProps) {
             [
               {
                 icon: Users,
-                title: '累積測驗人數',
-                value: summary?.totalUsers.toLocaleString() || '0',
-                color: 'from-[#A8CBB7] to-[#9fb8a8]'
+                title: "累積測驗人數",
+                value: summary?.totalUsers.toLocaleString() || "0",
+                color: "from-[#A8CBB7] to-[#9fb8a8]",
+              },
+              {
+                icon: PencilLine,
+                title: "累積測驗次數",
+                value: (summary?.totalQuizzes ?? 0).toLocaleString() || "0",
+                color: "from-[#E5C17A] to-[#d4b86a]",
               },
               {
                 icon: Award,
-                title: '平均等級',
+                title: "平均等級",
                 value: getAverageGrade(),
-                color: 'from-[#E5C17A] to-[#d4b86a]'
+                color: "from-[#A8CBB7] to-[#9fb8a8]",
               },
               {
                 icon: BookOpen,
-                title: '最熱門書籍',
-                value: summary?.mostPopularBook?.book || '尚無資料',
-                color: 'from-[#A8CBB7] to-[#9fb8a8]'
-              }
+                title: "最熱門書籍",
+                value: summary?.mostPopularBook?.book || "尚無資料",
+                color: "from-[#E5C17A] to-[#d4b86a]",
+              },
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -154,12 +201,19 @@ export function Analytics({ onBack }: AnalyticsProps) {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-[#636e72] mb-1">{stat.title}</p>
-                        <p className="text-[#2d3436]" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
+                        <p className="text-sm text-[#636e72] mb-1">
+                          {stat.title}
+                        </p>
+                        <p
+                          className="text-[#2d3436]"
+                          style={{ fontSize: "1.5rem", fontWeight: 600 }}
+                        >
                           {stat.value}
                         </p>
                       </div>
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                      <div
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}
+                      >
                         <stat.icon className="w-6 h-6 text-white" />
                       </div>
                     </div>
@@ -184,14 +238,18 @@ export function Analytics({ onBack }: AnalyticsProps) {
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={gradeDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#A8CBB7" opacity={0.2} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#A8CBB7"
+                      opacity={0.2}
+                    />
                     <XAxis dataKey="name" stroke="#636e72" />
                     <YAxis stroke="#636e72" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #A8CBB7',
-                        borderRadius: '8px'
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #A8CBB7",
+                        borderRadius: "8px",
                       }}
                     />
                     <Bar dataKey="value" radius={[8, 8, 0, 0]}>
@@ -204,7 +262,7 @@ export function Analytics({ onBack }: AnalyticsProps) {
               </CardContent>
             </Card>
           </motion.div>
-          
+
           {/* Book Participation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -223,7 +281,9 @@ export function Analytics({ onBack }: AnalyticsProps) {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
                       outerRadius={100}
                       dataKey="value"
                     >
@@ -231,11 +291,11 @@ export function Analytics({ onBack }: AnalyticsProps) {
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #A8CBB7',
-                        borderRadius: '8px'
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #A8CBB7",
+                        borderRadius: "8px",
                       }}
                     />
                   </PieChart>
@@ -272,7 +332,10 @@ export function Analytics({ onBack }: AnalyticsProps) {
                   </TableHeader>
                   <TableBody>
                     {wrongQuestions.map((q, index) => (
-                      <TableRow key={q.questionId} className="border-[#A8CBB7]/20">
+                      <TableRow
+                        key={q.questionId}
+                        className="border-[#A8CBB7]/20"
+                      >
                         <TableCell className="max-w-md">{q.question}</TableCell>
                         <TableCell>
                           <span className="px-2 py-1 bg-[#F7E6C3]/50 rounded text-sm">
@@ -280,12 +343,18 @@ export function Analytics({ onBack }: AnalyticsProps) {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className={`
+                          <span
+                            className={`
                             px-2 py-1 rounded text-sm
-                            ${q.correctRate < 60 ? 'bg-red-100 text-red-700' :
-                              q.correctRate < 75 ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-green-100 text-green-700'}
-                          `}>
+                            ${
+                              q.correctRate < 60
+                                ? "bg-red-100 text-red-700"
+                                : q.correctRate < 75
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-green-100 text-green-700"
+                            }
+                          `}
+                          >
                             {q.correctRate}%
                           </span>
                         </TableCell>
