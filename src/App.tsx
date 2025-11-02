@@ -77,6 +77,22 @@ function App() {
     }
   }, []);
 
+  // 切換到部份頁面時自動捲動到頂端
+  useEffect(() => {
+    if (
+      currentPage === "about" ||
+      currentPage === "leaderboard" ||
+      currentPage === "privacy-policy"
+    ) {
+      try {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      } catch (_) {
+        // 後援：部分環境不支援帶選項
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [currentPage]);
+
   const handleStartQuiz = (
     books: string[],
     difficulty: "beginner" | "advanced"

@@ -12,17 +12,19 @@ import { NaturalPattern } from "../components/NaturalPattern";
 import { NatureDecoration } from "../components/NatureDecoration";
 import { FloatingHerbs } from "../components/FloatingHerbs";
 import { Sparkles, ArrowLeft } from "lucide-react";
+import { useIsMobile } from "../utils/useIsMobile";
 
 interface PrivacyPolicyProps {
   onBack: () => void;
 }
 
 export function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
+  const { isMobile } = useIsMobile();
   return (
     <div className="min-h-screen relative  overflow-hidden bg-gradient-to-br from-[#FAFAF7] via-[#F7E6C3]/20 to-[#A8CBB7]/10">
       {/* 背景（沿用首頁） */}
       <div
-        className="absolute inset-0 opacity-30 overflow-hidden"
+        className={`absolute inset-0 opacity-30 overflow-hidden ${isMobile ? 'hidden' : ''}`}
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1604248215430-100912b27ead?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2Z0JTIwbmF0dXJlJTIwbGVhdmVzJTIwbGlnaHR8ZW58MXx8fHwxNzYxODA3MjI2fDA&ixlib=rb-4.1.0&q=80&w=1080')",
@@ -34,8 +36,8 @@ export function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
 
       {/* 裝飾元素 */}
       <NaturalPattern />
-      <NatureDecoration />
-      <FloatingHerbs />
+      {!isMobile && <NatureDecoration />}
+      {!isMobile && <FloatingHerbs />}
 
       {/* 透明頂部列（置中標題） */}
       <div className="relative z-10 bg-transparent pt-100  ">

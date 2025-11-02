@@ -12,17 +12,19 @@ import { NaturalPattern } from "../components/NaturalPattern";
 import { NatureDecoration } from "../components/NatureDecoration";
 import { FloatingHerbs } from "../components/FloatingHerbs";
 import { Sparkles, ArrowLeft } from "lucide-react";
+import { useIsMobile } from "../utils/useIsMobile";
 
 interface AboutProps {
   onBack: () => void;
 }
 
 export function About({ onBack }: AboutProps) {
+  const { isMobile } = useIsMobile();
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#FAFAF7] via-[#F7E6C3]/20 to-[#A8CBB7]/10">
       {/* 背景（沿用首頁） */}
       <div
-        className="absolute inset-0 opacity-30"
+        className={`absolute inset-0 opacity-30 ${isMobile ? 'hidden' : ''}`}
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1604248215430-100912b27ead?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2Z0JTIwbmF0dXJlJTIwbGVhdmVzJTIwbGlnaHR8ZW58MXx8fHwxNzYxODA3MjI2fDA&ixlib=rb-4.1.0&q=80&w=1080')",
@@ -34,8 +36,8 @@ export function About({ onBack }: AboutProps) {
 
       {/* 裝飾元素 */}
       <NaturalPattern />
-      <NatureDecoration />
-      <FloatingHerbs />
+      {!isMobile && <NatureDecoration />}
+      {!isMobile && <FloatingHerbs />}
 
       {/* 透明頂部列（置中標題，右側返回） */}
       <div className="relative z-10 bg-transparent pt-100  ">
@@ -126,7 +128,10 @@ export function About({ onBack }: AboutProps) {
             </CardContent>
           </Card>
 
-          <div className="flex justify-center pt-2">
+          <div
+            className="flex justify-center pt-2"
+            style={{ marginBottom: "80px" }}
+          >
             <Button
               onClick={onBack}
               className="px-8 py-6 cursor-pointer rounded-2xl bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] text-white shadow-lg hover:shadow-xl"
