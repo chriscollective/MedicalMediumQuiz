@@ -7,6 +7,7 @@ import { FloatingHerbs } from "../components/FloatingHerbs";
 import { NaturalPattern } from "../components/NaturalPattern";
 import { Sparkles } from "lucide-react";
 import { BOOKS } from "../constants/books";
+import { useIsMobile } from "../utils/useIsMobile";
 
 interface LandingPageProps {
   onStart: (books: string[], difficulty: "beginner" | "advanced") => void;
@@ -27,6 +28,7 @@ export function LandingPage({
   const [difficulty, setDifficulty] = useState<"beginner" | "advanced">(
     "beginner"
   );
+  const { isMobile } = useIsMobile();
 
   const books = BOOKS.map((b) => b.display);
 
@@ -44,21 +46,23 @@ export function LandingPage({
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#FAFAF7] via-[#F7E6C3]/20 to-[#A8CBB7]/10">
-      {/* Background blur effect */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1604248215430-100912b27ead?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2Z0JTIwbmF0dXJlJTIwbGVhdmVzJTIwbGlnaHR8ZW58MXx8fHwxNzYxODA3MjI2fDA&ixlib=rb-4.1.0&q=80&w=1080')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(60px)",
-        }}
-      />
+      {/* Background blur effect (disabled on mobile) */}
+      {!isMobile && (
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1604248215430-100912b27ead?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2Z0JTIwbmF0dXJlJTIwbGVhdmVzJTIwbGlnaHR8ZW58MXx8fHwxNzYxODA3MjI2fDA&ixlib=rb-4.1.0&q=80&w=1080')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "blur(60px)",
+          }}
+        />
+      )}
 
       {/* Nature Decorations */}
       <NaturalPattern />
-      <NatureDecoration />
-      <FloatingHerbs />
+      {!isMobile && <NatureDecoration />}
+      {!isMobile && <FloatingHerbs />}
 
       <div className="relative z-10 container mx-auto px-4 min-h-screen flex flex-col items-center justify-center py-8">
         <motion.div

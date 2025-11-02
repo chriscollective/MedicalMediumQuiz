@@ -63,7 +63,7 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
       {(grade === 'S' || grade === 'A+') && (
         <>
           <motion.div
-            className="absolute -top-6 -left-6"
+            className="absolute -top-4 md:-top-6 -left-4 md:-left-6"
             animate={{ 
               y: [0, -10, 0],
               opacity: [0.5, 1, 0.5],
@@ -75,10 +75,10 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
               ease: "easeInOut"
             }}
           >
-            <Sparkles className="w-6 h-6 text-[#E5C17A]" />
+            <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-[#E5C17A]" />
           </motion.div>
           <motion.div
-            className="absolute -top-6 -right-6"
+            className="absolute -top-4 md:-top-6 -right-4 md:-right-6"
             animate={{ 
               y: [0, -10, 0],
               opacity: [0.5, 1, 0.5],
@@ -91,10 +91,10 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
               delay: 1
             }}
           >
-            <Sparkles className="w-6 h-6 text-[#A8CBB7]" />
+            <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-[#A8CBB7]" />
           </motion.div>
           <motion.div
-            className="absolute -bottom-6 left-1/2 transform -translate-x-1/2"
+            className="absolute -bottom-4 md:-bottom-6 left-1/2 transform -translate-x-1/2"
             animate={{ 
               y: [0, 10, 0],
               opacity: [0.5, 1, 0.5],
@@ -107,7 +107,7 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
               delay: 0.5
             }}
           >
-            <Sparkles className="w-6 h-6 text-[#F7E6C3]" />
+            <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-[#F7E6C3]" />
           </motion.div>
         </>
       )}
@@ -121,7 +121,7 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
           ease: "easeInOut"
         }}
         className={`
-          w-40 h-40 rounded-full 
+          w-24 h-24 md:w-40 md:h-40 rounded-full 
           bg-gradient-to-br ${style.gradient}
           ${style.shadow} ${style.glow}
           flex items-center justify-center
@@ -129,7 +129,7 @@ export function GradeBadge({ grade }: GradeBadgeProps) {
         `}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
-        <span className="relative z-10 text-white drop-shadow-lg" style={{ fontSize: '4rem', fontWeight: 700 }}>
+        <span className="relative z-10 text-white drop-shadow-lg font-extrabold text-3xl md:text-6xl">
           {grade}
         </span>
       </motion.div>
