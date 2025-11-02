@@ -106,11 +106,22 @@ export function About({ onBack }: AboutProps) {
             </CardHeader>
             <CardContent className="text-[#2d3436]">
               <p>
-                意見回饋與錯誤回報：請寄信至 yourmail@example.com
+                意見回饋與錯誤回報：請寄信至 E-mail:justakiss918@gmail.com
                 或填寫表單（連結）。
               </p>
               <p>
-                內容修正與下架請求：請提供具體頁碼/題目與說明，我們會盡速處理。
+                內容修正與下架請求：請提供具體書籍/題型/題目內容，我們會盡速處理。
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-[#A8CBB7]/20">
+            <CardHeader>
+              <CardTitle className="text-[#2d3436]">特別感謝</CardTitle>
+            </CardHeader>
+            <CardContent className="text-[#2d3436]">
+              <p>
+                感謝醫療靈媒粉絲團，《_____》與《_____》協助參與題目的編寫、校正，沒有他們的幫忙，這個網站是不可能有容此豐富的題庫!再次感謝所有參與這個網站的粉絲們!
               </p>
             </CardContent>
           </Card>
