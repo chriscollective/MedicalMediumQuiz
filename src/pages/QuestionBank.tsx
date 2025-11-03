@@ -45,7 +45,7 @@ import {
 } from "../services/questionService";
 import { getQuestionsStats, QuestionStats } from "../services/analyticsService";
 import { createBook, fetchBooks, type Book } from "../services/bookService";
-import { getToken } from "../services/authService";
+import { getToken, getCurrentUser } from "../services/authService";
 import { BOOKS, DIFFICULTIES } from "../constants/books";
 
 interface QuestionBankProps {
@@ -108,6 +108,8 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const [stats, setStats] = useState<Map<string, QuestionStats>>(new Map());
+  const currentAdmin = getCurrentUser();
+  const canDelete = (currentAdmin?.username || '').toLowerCase() === 'chris';
 
   // 新增書籍相關狀態
   const [isBookDialogOpen, setIsBookDialogOpen] = useState(false);
@@ -969,24 +971,26 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                                 })()}
                               </TableCell>
                               <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleEdit(q)}
-                                    className="text-[#A8CBB7] hover:bg-[#F7E6C3]/20"
-                                  >
-                                    <Pencil className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDelete(q.id)}
-                                    className="text-red-500 hover:bg-red-50"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
+                                  <div className="flex justify-end gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleEdit(q)}
+                                      className="text-[#A8CBB7] hover:bg-[#F7E6C3]/20"
+                                    >
+                                      <Pencil className="w-4 h-4" />
+                                    </Button>
+                                    {canDelete && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDelete(q.id)}
+                                        className="text-red-500 hover:bg-red-50"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                  </div>
                               </TableCell>
                             </TableRow>
                           ))
