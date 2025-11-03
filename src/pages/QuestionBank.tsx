@@ -479,9 +479,16 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                         <Label>書籍 *</Label>
                         <Select
                           value={formData.book}
-                          onValueChange={(v) =>
-                            setFormData({ ...formData, book: v })
-                          }
+                          onValueChange={(v) => {
+                            // 選書時：新增模式立刻帶入來源為該書顯示名稱
+                            const selected = BOOKS.find((b) => b.db === v);
+                            const display = selected ? selected.display : "";
+                            if (!editingQuestion) {
+                              setFormData({ ...formData, book: v, source: display });
+                            } else {
+                              setFormData({ ...formData, book: v });
+                            }
+                          }}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="選擇書籍" />
