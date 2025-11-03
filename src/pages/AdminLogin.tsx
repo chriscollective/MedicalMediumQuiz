@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -16,8 +16,23 @@ interface AdminLoginProps {
 export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // 記住帳號：初始化時載入
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('admin_remember_username');
+      const rememberFlag = localStorage.getItem('admin_remember_flag');
+      if (rememberFlag === '1' && saved) {
+        setUsername(saved);
+        setRemember(true);
+      } else if (rememberFlag === '0') {
+        setRemember(false);
+      }
+    } catch {}
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +41,17 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
 
     try {
       const response = await login({ username, password });
+
+      // 記住帳號
+      try {
+        if (remember) {
+          localStorage.setItem('admin_remember_username', username);
+          localStorage.setItem('admin_remember_flag', '1');
+        } else {
+          localStorage.removeItem('admin_remember_username');
+          localStorage.setItem('admin_remember_flag', '0');
+        }
+      } catch {}
 
       // Call parent onLogin with username
       onLogin(response.admin.username);
@@ -124,6 +150,18 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
                 />
               </div>
             </div>
+
+            {/* 記住帳號 */}
+            <label className="flex items-center gap-2 text-sm text-[#2d3436] select-none">
+              <input
+                type="checkbox"
+                className="accent-[#A8CBB7] w-4 h-4"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                disabled={loading}
+              />
+              記住帳號
+            </label>
 
             <Button
               type="submit"
