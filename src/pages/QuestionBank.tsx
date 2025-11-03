@@ -712,7 +712,41 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                       />
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-4">
+                    
+                    {/* 只讀審計資訊（編輯模式顯示） */}
+                    {editingQuestion && (
+                      <div className="grid md:grid-cols-2 gap-4 p-4 rounded-lg bg-gray-50 border border-[#A8CBB7]/20">
+                        <div className="space-y-1">
+                          <Label>出題者</Label>
+                          <div className="text-sm text-[#2d3436]">
+                            {editingQuestion.createdBy || "-"}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>出題時間</Label>
+                          <div className="text-sm text-[#2d3436]">
+                            {editingQuestion.createdAt
+                              ? new Date(editingQuestion.createdAt).toLocaleString("zh-TW", { hour12: false })
+                              : "-"}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>修改者</Label>
+                          <div className="text-sm text-[#2d3436]">
+                            {editingQuestion.updatedBy || "無"}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>修改時間</Label>
+                          <div className="text-sm text-[#2d3436]">
+                            {editingQuestion.updatedAt
+                              ? new Date(editingQuestion.updatedAt).toLocaleString("zh-TW", { hour12: false })
+                              : "無"}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+<div className="flex justify-end gap-2 pt-4">
                       <Button
                         variant="outline"
                         onClick={() => {
@@ -1089,6 +1123,8 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
     </div>
   );
 }
+
+
 
 
 
