@@ -6,7 +6,7 @@ import { AdminLogin } from "./pages/AdminLogin";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { Analytics } from "./pages/Analytics";
 import { AdminSettings } from "./pages/AdminSettings";
-import { AdminSettings } from "./pages/AdminSettings";
+
 import { QuestionBank } from "./pages/QuestionBank";
 import { Leaderboard } from "./pages/Leaderboard";
 import { About } from "./pages/About";

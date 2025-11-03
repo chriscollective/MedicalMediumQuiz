@@ -1,13 +1,13 @@
-﻿import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { Card } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Button } from '../components/ui/button';
-import { Checkbox } from '../components/ui/checkbox';
-import { NatureAccents } from '../components/NatureAccents';
-import { Lock, User, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
-import { login } from '../services/authService';
+﻿import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Button } from "../components/ui/button";
+import { Checkbox } from "../components/ui/checkbox";
+import { NatureAccents } from "../components/NatureAccents";
+import { Lock, User, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
+import { login } from "../services/authService";
 
 interface AdminLoginProps {
   onLogin: (username: string) => void;
@@ -15,21 +15,21 @@ interface AdminLoginProps {
 }
 
 export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // 記住帳號：初始化時載入
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('admin_remember_username');
-      const rememberFlag = localStorage.getItem('admin_remember_flag');
-      if (rememberFlag === '1' && saved) {
+      const saved = localStorage.getItem("admin_remember_username");
+      const rememberFlag = localStorage.getItem("admin_remember_flag");
+      if (rememberFlag === "1" && saved) {
         setUsername(saved);
         setRemember(true);
-      } else if (rememberFlag === '0') {
+      } else if (rememberFlag === "0") {
         setRemember(false);
       }
     } catch {}
@@ -37,7 +37,7 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
@@ -46,21 +46,21 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
       // 記住帳號
       try {
         if (remember) {
-          localStorage.setItem('admin_remember_username', username);
-          localStorage.setItem('admin_remember_flag', '1');
+          localStorage.setItem("admin_remember_username", username);
+          localStorage.setItem("admin_remember_flag", "1");
         } else {
-          localStorage.removeItem('admin_remember_username');
-          localStorage.setItem('admin_remember_flag', '0');
+          localStorage.removeItem("admin_remember_username");
+          localStorage.setItem("admin_remember_flag", "0");
         }
       } catch {}
 
       // Call parent onLogin with username
       onLogin(response.admin.username);
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error("Login error:", err);
 
       // Extract error message
-      let errorMessage = '登入失敗，請稍後再試';
+      let errorMessage = "登入失敗，請稍後再試";
 
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
@@ -73,7 +73,7 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] to-[#A8CBB7]/10 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Nature Accents */}
@@ -105,7 +105,7 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
             <h2 className="text-[#2d3436]">管理員登入</h2>
             <p className="text-[#636e72] text-sm mt-2">醫療靈媒隨堂測驗後台</p>
           </div>
-          
+
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
               <motion.div
@@ -119,7 +119,9 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-[#2d3436]">帳號</Label>
+              <Label htmlFor="username" className="text-[#2d3436]">
+                帳號
+              </Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#636e72]" />
                 <Input
@@ -136,7 +138,9 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#2d3436]">密碼</Label>
+              <Label htmlFor="password" className="text-[#2d3436]">
+                密碼
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#636e72]" />
                 <Input
@@ -153,16 +157,15 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
             </div>
 
             {/* 記住帳號 */}
-            <label className="flex items-center gap-2 text-sm text-[#2d3436] select-none">
-              <input
-                type="checkbox"
-                className="accent-[#A8CBB7] w-4 h-4"
+                        <div className="flex items-center gap-2 text-sm text-[#2d3436] select-none">
+              <Checkbox
+                id="remember"
                 checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
+                onCheckedChange={(v) => setRemember(!!v)}
                 disabled={loading}
               />
-              記住帳號
-            </label>
+              <label htmlFor="remember">記住帳號</label>
+            </div>
 
             <Button
               type="submit"
@@ -212,5 +215,3 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
     </div>
   );
 }
-
-
