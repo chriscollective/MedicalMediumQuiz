@@ -421,7 +421,6 @@ export function QuizPage({
             ))}
           </motion.div>
         </AnimatePresence>
-
         {/* Navigation Buttons */}
         <div className="fixed bottom-8 right-8 flex gap-3">
           <Button
@@ -461,9 +460,8 @@ export function QuizPage({
           </Button>
         </div>
 
-        {/* this is a test */}
         {/* Page Indicator */}
-        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="fixed bottom-8 left-1/2 transform-sm -translate-x-1/2-sm">
           <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md">
             <span className="text-sm text-[#636e72]">
               第 {currentPage} / {totalPages} 頁
