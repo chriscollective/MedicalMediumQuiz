@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 
@@ -190,5 +191,50 @@ export const getCurrentAdmin = async (req: Request, res: Response) => {
       success: false,
       message: '無效的 token'
     });
+  }
+};
+
+// Change password (requires authentication)
+export const changePassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const adminId = req.admin?.id;
+    const { currentPassword, newPassword } = req.body as {
+      currentPassword?: string;
+      newPassword?: string;
+    };
+
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: "未授權" });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "請提供目前密碼與新密碼" });
+    }
+
+    if (typeof newPassword !== "string" || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: "新密碼長度至少需 6 碼" });
+    }
+
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "找不到管理員帳號" });
+    }
+
+    const ok = await admin.comparePassword(currentPassword);
+    if (!ok) {
+      return res.status(401).json({ success: false, message: "目前密碼不正確" });
+    }
+
+    const same = await admin.comparePassword(newPassword);
+    if (same) {
+      return res.status(400).json({ success: false, message: "新密碼不可與舊密碼相同" });
+    }
+
+    admin.password = newPassword; // pre-save hook 會自動雜湊
+    await admin.save();
+
+    return res.json({ success: true, message: "密碼已更新" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "更新密碼發生錯誤" });
   }
 };

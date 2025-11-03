@@ -1,9 +1,9 @@
-import express from 'express';
+﻿import express from 'express';
 import {
   login,
   verifyToken,
   logout,
-  getCurrentAdmin
+  getCurrentAdmin,\n  changePassword
 } from '../controllers/adminController';
 import { authenticate } from '../middleware/auth';
 
@@ -15,6 +15,6 @@ router.post('/verify', verifyToken);
 
 // Protected routes (require authentication)
 router.post('/logout', authenticate, logout);
-router.get('/me', authenticate, getCurrentAdmin);
+router.get('/me', authenticate, getCurrentAdmin,\n  changePassword);
 
 export default router;

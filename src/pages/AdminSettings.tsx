@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -9,7 +9,7 @@ interface AdminSettingsProps {
   onBack: () => void;
 }
 
-export function AdminSettings({ onBack }: AdminSettingsProps) {
+export function AdminSettings({ onBack }: AdminSettingsProps) {\n  const [mode, setMode] = React.useState<null | 'change-password'>(null);\n  const [currentPassword, setCurrentPassword] = React.useState('');\n  const [newPassword, setNewPassword] = React.useState('');\n  const [confirmPassword, setConfirmPassword] = React.useState('');\n  const [loading, setLoading] = React.useState(false);\n  const [message, setMessage] = React.useState<string | null>(null);\n
   const items = [
     {
       id: "change-password",
@@ -17,7 +17,7 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
       description: "變更目前管理員的登入密碼",
       icon: <KeyRound className="w-6 h-6 text-white" />,
       color: "from-[#A8CBB7] to-[#9fb8a8]",
-      action: () => alert("此功能待實作：修改密碼"),
+      action: () => setMode('change-password'),
     },
     {
       id: "admin-list",
@@ -25,7 +25,7 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
       description: "檢視或管理現有管理員帳號",
       icon: <Users className="w-6 h-6 text-white" />,
       color: "from-[#E5C17A] to-[#d4b86a]",
-      action: () => alert("此功能待實作：管理員名單"),
+      action: () => setMode('change-password'),
     },
     {
       id: "feedback",
@@ -33,7 +33,7 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
       description: "提出改善建議或錯誤回報",
       icon: <MessageSquare className="w-6 h-6 text-white" />,
       color: "from-[#A8CBB7] to-[#2d3436]",
-      action: () => alert("此功能待實作：修改建議與問題回報"),
+      action: () => setMode('change-password'),
     },
   ];
 

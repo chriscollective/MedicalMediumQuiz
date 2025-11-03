@@ -1,4 +1,4 @@
-import api from './api';
+﻿import api from './api';
 
 export interface LoginCredentials {
   username: string;
@@ -112,4 +112,10 @@ export function clearAuth(): void {
 const token = getToken();
 if (token) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
+
+// Change password (requires authentication)
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await api.post('/admin/change-password', { currentPassword, newPassword });
 }
