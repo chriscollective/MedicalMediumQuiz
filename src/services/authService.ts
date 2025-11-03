@@ -119,3 +119,18 @@ if (token) {
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   await api.post('/admin/change-password', { currentPassword, newPassword });
 }
+
+// Admin notes
+export interface AdminBasic {
+  username: string;
+  note?: string;
+}
+
+export async function getAdminsBasic(): Promise<AdminBasic[]> {
+  const res = await api.get('/admin/admins-basic');
+  return res.data?.data || [];
+}
+
+export async function updateMyNote(note: string): Promise<void> {
+  await api.put('/admin/me/note', { note });
+}

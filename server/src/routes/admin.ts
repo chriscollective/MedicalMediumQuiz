@@ -7,6 +7,7 @@ import {
   changePassword,
 } from "../controllers/adminController";
 import { authenticate } from "../middleware/auth";
+import { getAdminsBasic, updateMyNote } from "../controllers/adminNotesController";
 
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.post("/verify", verifyToken);
 router.post("/logout", authenticate, logout);
 router.get("/me", authenticate, getCurrentAdmin);
 router.post("/change-password", authenticate, changePassword);
+router.get("/admins-basic", authenticate, getAdminsBasic);
+router.put("/me/note", authenticate, updateMyNote);
 
 export default router;
