@@ -2,6 +2,7 @@
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../components/ui/dialog";
 import { NatureAccents } from "../components/NatureAccents";
 import { ArrowLeft, KeyRound, Users, MessageSquare } from "lucide-react";
 import { changePassword as changePasswordApi } from "../services/authService";
@@ -17,6 +18,7 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const items = [
     {
@@ -58,6 +60,22 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        {/* 成功提示視窗 */}
+        <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>密碼已更新</DialogTitle>
+              <DialogDescription>
+                你的登入密碼已成功變更。下次登入請使用新密碼。
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end pt-2">
+              <Button onClick={() => setSuccessOpen(false)} className="bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] text-white">
+                知道了
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {mode === "change-password" && (
           <Card className="max-w-xl mx-auto mb-8 border-[#A8CBB7]/20">
@@ -91,6 +109,7 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
                     setLoading(true);
                     await changePasswordApi(currentPassword, newPassword);
                     setMessage('密碼已更新');
+                    setSuccessOpen(true);
                     setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
                   } catch (e: any) {
                     setMessage(e?.response?.data?.message || '更新失敗');
