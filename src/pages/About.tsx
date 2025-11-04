@@ -45,7 +45,7 @@ export function About({ onBack }: AboutProps) {
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="flex items-center gap-2 text-[#2d3436]">
               <Sparkles className="w-6 h-6 text-[#A8CBB7]" />
-              <span className="font-medium">關於本站</span>
+              <span className="text-2xl font-extrabold">關於本站</span>
               <Sparkles className="w-6 h-6 text-[#A8CBB7]" />
             </div>
           </div>
