@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { GradeBadge } from '../components/GradeBadge';
-import { Button } from '../components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
-import { Card } from '../components/ui/card';
-import { NatureAccents } from '../components/NatureAccents';
-import { FloatingHerbs } from '../components/FloatingHerbs';
-import { Share2, RotateCcw, Home } from 'lucide-react';
-import { Question } from '../components/QuestionCard';
-import { LeaderboardNameDialog } from '../components/LeaderboardNameDialog';
-import { checkLeaderboard, submitLeaderboard } from '../services/leaderboardService';
+import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { GradeBadge } from "../components/GradeBadge";
+import { Button } from "../components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/ui/accordion";
+import { Card } from "../components/ui/card";
+import { NatureAccents } from "../components/NatureAccents";
+import { FloatingHerbs } from "../components/FloatingHerbs";
+import { Share2, RotateCcw, Home } from "lucide-react";
+import { Question } from "../components/QuestionCard";
+import { LeaderboardNameDialog } from "../components/LeaderboardNameDialog";
+import {
+  checkLeaderboard,
+  submitLeaderboard,
+} from "../services/leaderboardService";
 
 interface ResultPageProps {
   score: number;
@@ -25,27 +33,38 @@ interface ResultPageProps {
   onHome: () => void;
 }
 
-const calculateGrade = (percentage: number): 'S' | 'A+' | 'A' | 'B+' | 'B' | 'C+' | 'F' => {
-  if (percentage === 100) return 'S';
-  if (percentage >= 90) return 'A+';
-  if (percentage >= 80) return 'A';
-  if (percentage >= 70) return 'B+';
-  if (percentage >= 60) return 'B';
-  if (percentage >= 50) return 'C+';
-  return 'F';
+const calculateGrade = (
+  percentage: number
+): "S" | "A+" | "A" | "B+" | "B" | "C+" | "F" => {
+  if (percentage === 100) return "S";
+  if (percentage >= 90) return "A+";
+  if (percentage >= 80) return "A";
+  if (percentage >= 70) return "B+";
+  if (percentage >= 60) return "B";
+  if (percentage >= 50) return "C+";
+  return "F";
 };
 
 const gradeMessages = {
-  'S': '🌟 完美！你對醫療靈媒的知識掌握得非常透徹！',
-  'A+': '✨ 優秀！你已經深入理解安東尼的療癒理念！',
-  'A': '🌿 很好！繼續保持，你在療癒之路上走得很穩！',
-  'B+': '💚 不錯！再多閱讀一些，會有更多收穫！',
-  'B': '🌱 還可以！建議重新閱讀相關章節！',
-  'C+': '📚 需要加油！多花時間理解療癒知識！',
-  'F': '🌾 別氣餒！從頭開始，慢慢學習！'
+  S: "🌟 完美！你對醫療靈媒的知識掌握得非常透徹！",
+  "A+": "✨ 優秀！你已經深入理解安東尼的療癒理念！",
+  A: "🌿 很好！繼續保持，你在療癒之路上走得很穩！",
+  "B+": "💚 不錯！再多閱讀一些，會有更多收穫！",
+  B: "🌱 還可以！建議重新閱讀相關章節！",
+  "C+": "📚 需要加油！多花時間理解療癒知識！",
+  F: "🌾 別氣餒！從頭開始，慢慢學習！",
 };
 
-export function ResultPage({ score, totalQuestions, wrongQuestions, books, difficulty, userId, onRestart, onHome }: ResultPageProps) {
+export function ResultPage({
+  score,
+  totalQuestions,
+  wrongQuestions,
+  books,
+  difficulty,
+  userId,
+  onRestart,
+  onHome,
+}: ResultPageProps) {
   const percentage = (score / totalQuestions) * 100;
   const grade = calculateGrade(percentage);
   const message = gradeMessages[grade];
@@ -58,9 +77,9 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
     const checkIfQualified = async () => {
       try {
         // 決定書籍類別（單本或綜合）
-        let bookCategory = books.length > 1 ? '綜合' : books[0];
+        let bookCategory = books.length > 1 ? "綜合" : books[0];
         // 移除書名號
-        bookCategory = bookCategory.replace(/《|》/g, '');
+        bookCategory = bookCategory.replace(/《|》/g, "");
 
         const result = await checkLeaderboard(
           userId,
@@ -74,7 +93,7 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
           setShowLeaderboardDialog(true);
         }
       } catch (error) {
-        console.error('檢查榜單失敗:', error);
+        console.error("檢查榜單失敗:", error);
       }
     };
 
@@ -83,9 +102,9 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
 
   const handleSubmitLeaderboard = async (displayName: string) => {
     try {
-      let bookCategory = books.length > 1 ? '綜合' : books[0];
+      let bookCategory = books.length > 1 ? "綜合" : books[0];
       // 移除書名號
-      bookCategory = bookCategory.replace(/《|》/g, '');
+      bookCategory = bookCategory.replace(/《|》/g, "");
 
       await submitLeaderboard(
         userId,
@@ -95,34 +114,36 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
         displayName
       );
 
-      alert('恭喜！你的成績已成功登上榜單！');
+      alert("恭喜！你的成績已成功登上榜單！");
     } catch (error) {
-      console.error('提交榜單失敗:', error);
+      console.error("提交榜單失敗:", error);
       throw error;
     }
   };
 
   const handleShare = () => {
-    const text = `我在「醫療靈媒隨堂測驗」中獲得了 ${grade} 等級！答對率 ${percentage.toFixed(1)}% 🌿`;
+    const text = `我在「醫療靈媒隨堂測驗」中獲得了 ${grade} 等級！答對率 ${percentage.toFixed(
+      1
+    )}% 🌿`;
     if (navigator.share) {
       navigator.share({
-        title: '醫療靈媒隨堂測驗',
+        title: "醫療靈媒隨堂測驗",
         text: text,
       });
     } else {
-      alert('分享功能在此瀏覽器不支援');
+      alert("分享功能在此瀏覽器不支援");
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] via-white to-[#F7E6C3]/20 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[800px] h-[800px] bg-gradient-radial from-[#A8CBB7]/20 to-transparent blur-3xl" />
-      
+
       {/* Nature Accents */}
       <NatureAccents variant="decorative" />
       <FloatingHerbs />
-      
+
       <div className="relative z-10 container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -131,12 +152,12 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
           className="text-center space-y-8"
         >
           <h1 className="text-[#2d3436]">測驗完成 🌿</h1>
-          
+
           {/* Grade Badge */}
           <div className="flex justify-center">
             <GradeBadge grade={grade} />
           </div>
-          
+
           {/* Score Info */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -149,7 +170,7 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
               答對 {score} / {totalQuestions} 題（{percentage.toFixed(1)}%）
             </p>
           </motion.div>
-          
+
           {/* Action Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -196,7 +217,7 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
               回首頁
             </Button>
           </motion.div>
-          
+
           {/* Wrong Questions Analysis */}
           {wrongQuestions && wrongQuestions.length > 0 && (
             <motion.div
@@ -209,27 +230,39 @@ export function ResultPage({ score, totalQuestions, wrongQuestions, books, diffi
                 <h3 className="text-[#2d3436] mb-4">錯題解析 📝</h3>
                 <Accordion type="single" collapsible className="space-y-2">
                   {wrongQuestions.map((item, index) => {
-                    const userAnswerStr = Array.isArray(item.userAnswer) 
-                      ? item.userAnswer.join(', ') 
+                    const userAnswerStr = Array.isArray(item.userAnswer)
+                      ? item.userAnswer.join(", ")
                       : item.userAnswer;
-                    const correctAnswerStr = Array.isArray(item.question.correctAnswer)
-                      ? item.question.correctAnswer.join(', ')
+                    const correctAnswerStr = Array.isArray(
+                      item.question.correctAnswer
+                    )
+                      ? item.question.correctAnswer.join(", ")
                       : item.question.correctAnswer;
-                    
+
                     return (
-                      <AccordionItem key={index} value={`item-${index}`} className="border-[#A8CBB7]/20">
+                      <AccordionItem
+                        key={index}
+                        value={`item-${index}`}
+                        className="border-[#A8CBB7]/20"
+                      >
                         <AccordionTrigger className="hover:no-underline hover:bg-[#F7E6C3]/20 px-4 rounded-lg transition-colors">
-                          <span className="text-left">Q: {item.question.question}</span>
+                          <span className="text-left">
+                            Q: {item.question.question}
+                          </span>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pt-4 space-y-3">
                           <div className="space-y-2">
                             <p className="text-sm">
                               <span className="text-[#636e72]">你的答案：</span>
-                              <span className="text-red-500 ml-2">{userAnswerStr || '未作答'}</span>
+                              <span className="text-red-500 ml-2">
+                                {userAnswerStr || "未作答"}
+                              </span>
                             </p>
                             <p className="text-sm">
                               <span className="text-[#636e72]">正確答案：</span>
-                              <span className="text-[#A8CBB7] ml-2">{correctAnswerStr}</span>
+                              <span className="text-[#A8CBB7] ml-2">
+                                {correctAnswerStr}
+                              </span>
                             </p>
                             {item.question.source && (
                               <p className="text-xs text-[#636e72]">

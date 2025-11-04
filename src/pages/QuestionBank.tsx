@@ -118,7 +118,7 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
   const itemsPerPage = 20;
   const [stats, setStats] = useState<Map<string, QuestionStats>>(new Map());
   const currentAdmin = getCurrentUser();
-  const canDelete = (currentAdmin?.username || '').toLowerCase() === 'chris';
+  const canDelete = (currentAdmin?.username || "").toLowerCase() === "chris";
 
   // 新增書籍相關狀態
   const [isBookDialogOpen, setIsBookDialogOpen] = useState(false);
@@ -426,7 +426,7 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] to-[#F7E6C3]/20 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-[#FAFAF7] to-[#F7E6C3]/20 relative overflow-hidden">
       {/* Nature Accents */}
       <NatureAccents variant="minimal" />
 
@@ -484,7 +484,11 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                             const selected = BOOKS.find((b) => b.db === v);
                             const display = selected ? selected.display : "";
                             if (!editingQuestion) {
-                              setFormData({ ...formData, book: v, source: display });
+                              setFormData({
+                                ...formData,
+                                book: v,
+                                source: display,
+                              });
                             } else {
                               setFormData({ ...formData, book: v });
                             }
@@ -719,7 +723,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                       />
                     </div>
 
-                    
                     {/* 只讀審計資訊（編輯模式顯示） */}
                     {editingQuestion && (
                       <div className="grid md:grid-cols-2 gap-4 p-4 rounded-lg bg-gray-50 border border-[#A8CBB7]/20">
@@ -733,7 +736,9 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                           <Label>出題時間</Label>
                           <div className="text-sm text-[#2d3436]">
                             {editingQuestion.createdAt
-                              ? new Date(editingQuestion.createdAt).toLocaleString("zh-TW", { hour12: false })
+                              ? new Date(
+                                  editingQuestion.createdAt
+                                ).toLocaleString("zh-TW", { hour12: false })
                               : "-"}
                           </div>
                         </div>
@@ -747,13 +752,15 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                           <Label>修改時間</Label>
                           <div className="text-sm text-[#2d3436]">
                             {editingQuestion.updatedAt
-                              ? new Date(editingQuestion.updatedAt).toLocaleString("zh-TW", { hour12: false })
+                              ? new Date(
+                                  editingQuestion.updatedAt
+                                ).toLocaleString("zh-TW", { hour12: false })
                               : "無"}
                           </div>
                         </div>
                       </div>
                     )}
-<div className="flex justify-end gap-2 pt-4">
+                    <div className="flex justify-end gap-2 pt-4">
                       <Button
                         variant="outline"
                         onClick={() => {
@@ -767,7 +774,7 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                       </Button>
                       <Button
                         onClick={handleSave}
-                        className="bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] text-white"
+                        className="bg-linear-to-r from-[#A8CBB7] to-[#9fb8a8] text-white"
                         disabled={saving}
                       >
                         {saving ? (
@@ -837,7 +844,7 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                       <Button
                         onClick={handleAddBook}
                         disabled={addingBook || !newBookName.trim()}
-                        className="bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] text-white"
+                        className="bg-linear-to-r from-[#A8CBB7] to-[#9fb8a8] text-white"
                       >
                         {addingBook ? (
                           <>
@@ -1047,30 +1054,28 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                                   );
                                 })()}
                               </TableCell>
-                              <TableCell>
-                                {q.createdBy || "-"}
-                              </TableCell>
+                              <TableCell>{q.createdBy || "-"}</TableCell>
                               <TableCell className="text-right">
-                                  <div className="flex justify-end gap-2">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleEdit(q)}
+                                    className="text-[#A8CBB7] hover:bg-[#F7E6C3]/20"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  {canDelete && (
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => handleEdit(q)}
-                                      className="text-[#A8CBB7] hover:bg-[#F7E6C3]/20"
+                                      onClick={() => handleDelete(q.id)}
+                                      className="text-red-500 hover:bg-red-50"
                                     >
-                                      <Pencil className="w-4 h-4" />
+                                      <Trash2 className="w-4 h-4" />
                                     </Button>
-                                    {canDelete && (
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleDelete(q.id)}
-                                        className="text-red-500 hover:bg-red-50"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))
@@ -1130,9 +1135,3 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
     </div>
   );
 }
-
-
-
-
-
-

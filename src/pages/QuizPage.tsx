@@ -345,7 +345,7 @@ export function QuizPage({
   // Loading 狀態
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] to-[#F7E6C3]/30 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-[#FAFAF7] to-[#F7E6C3]/30 flex items-center justify-center">
         <div className="text-center">
           <Sparkles className="w-12 h-12 text-[#A8CBB7] animate-pulse mx-auto mb-4" />
           <p className="text-[#636e72] text-lg">正在載入題目...</p>
@@ -358,7 +358,7 @@ export function QuizPage({
   const showErrorBanner = error && questions.length > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAFAF7] to-[#F7E6C3]/30 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-[#FAFAF7] to-[#F7E6C3]/30 relative overflow-hidden">
       {/* Nature Accents */}
       <NatureAccents variant="minimal" />
 
@@ -452,7 +452,7 @@ export function QuizPage({
             disabled={submitting}
             className="
               rounded-full px-6 h-12
-              bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8]
+              bg-linear-to-r from-[#A8CBB7] to-[#9fb8a8]
               text-white shadow-lg hover:shadow-xl
               transition-all duration-300
               flex items-center gap-2

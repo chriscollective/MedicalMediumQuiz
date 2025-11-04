@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +7,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Trophy, Sparkles, Loader2 } from 'lucide-react';
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Trophy, Sparkles, Loader2 } from "lucide-react";
 
 interface LeaderboardNameDialogProps {
   open: boolean;
@@ -25,24 +25,24 @@ export function LeaderboardNameDialog({
   onSubmit,
   onClose,
 }: LeaderboardNameDialogProps) {
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState("");
   const [useAnonymous, setUseAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!useAnonymous && displayName.trim() === '') {
-      alert('請輸入顯示名稱或選擇匿名');
+    if (!useAnonymous && displayName.trim() === "") {
+      alert("請輸入顯示名稱或選擇匿名");
       return;
     }
 
     setSubmitting(true);
     try {
-      const finalName = useAnonymous ? '匿名勇者' : displayName.trim();
+      const finalName = useAnonymous ? "匿名勇者" : displayName.trim();
       await onSubmit(finalName);
       onClose();
     } catch (error) {
-      console.error('提交榜單失敗:', error);
-      alert('提交失敗，請稍後再試');
+      console.error("提交榜單失敗:", error);
+      alert("提交失敗，請稍後再試");
     } finally {
       setSubmitting(false);
     }
@@ -50,14 +50,14 @@ export function LeaderboardNameDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-1/5">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{
-                type: 'spring',
+                type: "spring",
                 stiffness: 260,
                 damping: 20,
               }}
@@ -88,7 +88,10 @@ export function LeaderboardNameDialog({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label htmlFor="displayName" className="text-sm font-medium text-[#2d3436]">
+            <label
+              htmlFor="displayName"
+              className="text-sm font-medium text-[#2d3436]"
+            >
               榜單顯示名稱
             </label>
             <Input
@@ -112,7 +115,10 @@ export function LeaderboardNameDialog({
               disabled={submitting}
               className="w-4 h-4 text-[#A8CBB7] border-[#A8CBB7]/30 rounded focus:ring-[#A8CBB7]"
             />
-            <label htmlFor="anonymous" className="text-sm text-[#636e72] cursor-pointer">
+            <label
+              htmlFor="anonymous"
+              className="text-sm text-[#636e72] cursor-pointer"
+            >
               使用匿名（顯示為「匿名勇者」）
             </label>
           </div>
@@ -129,7 +135,9 @@ export function LeaderboardNameDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || (!useAnonymous && displayName.trim() === '')}
+            disabled={
+              submitting || (!useAnonymous && displayName.trim() === "")
+            }
             className="bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8] hover:opacity-90"
           >
             {submitting ? (
@@ -138,7 +146,7 @@ export function LeaderboardNameDialog({
                 提交中...
               </>
             ) : (
-              '提交榜單'
+              "提交榜單"
             )}
           </Button>
         </DialogFooter>
