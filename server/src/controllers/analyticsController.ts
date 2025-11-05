@@ -3,6 +3,296 @@ import Question from '../models/Question';
 import Quiz from '../models/Quiz';
 import mongoose from 'mongoose';
 
+type CacheEntry<T> = {
+  expires: number;
+  data: T;
+};
+
+const analyticsCache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL_MS =
+  Number(process.env.ANALYTICS_OVERVIEW_CACHE_TTL_MS) || 45_000;
+
+function getCache<T>(key: string): T | null {
+  const entry = analyticsCache.get(key);
+  if (!entry) {
+    return null;
+  }
+  if (entry.expires < Date.now()) {
+    analyticsCache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCache<T>(key: string, data: T) {
+  analyticsCache.set(key, {
+    expires: Date.now() + CACHE_TTL_MS,
+    data
+  });
+}
+
+/**
+ * Helper: 聚合取得統計摘要
+ */
+async function computeAnalyticsSummary() {
+  const uniqueUsers = await Quiz.distinct('userId');
+  const totalUsers = uniqueUsers.length;
+
+  const difficultyStats = await Quiz.aggregate([
+    {
+      $group: {
+        _id: '$difficulty',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const difficultyMap = new Map(
+    difficultyStats.map(stat => [stat._id, stat.count])
+  );
+
+  const beginnerCount = difficultyMap.get('初階') || 0;
+  const advancedCount = difficultyMap.get('進階') || 0;
+  const totalQuizzes = beginnerCount + advancedCount;
+
+  const beginnerPercentage = totalQuizzes > 0
+    ? Math.round((beginnerCount / totalQuizzes) * 100)
+    : 0;
+
+  const correctRateStats = await Quiz.aggregate([
+    {
+      $group: {
+        _id: null,
+        avgCorrectCount: { $avg: '$correctCount' }
+      }
+    }
+  ]);
+
+  const avgCorrectRate = correctRateStats.length > 0
+    ? Math.floor((correctRateStats[0].avgCorrectCount / 20) * 1000) / 10
+    : 0;
+
+  const avgGrade = calculateGradeFromScore(avgCorrectRate);
+
+  const bookStats = await Quiz.aggregate([
+    {
+      $group: {
+        _id: '$book',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: 1
+    }
+  ]);
+
+  const mostPopularBook = bookStats.length > 0
+    ? {
+        book: bookStats[0]._id,
+        count: bookStats[0].count
+      }
+    : null;
+
+  return {
+    totalUsers,
+    totalQuizzes,
+    difficultyDistribution: {
+      beginner: beginnerCount,
+      advanced: advancedCount,
+      beginnerPercentage
+    },
+    avgCorrectRate,
+    avgGrade,
+    mostPopularBook
+  };
+}
+
+/**
+ * Helper: 取得等級分布資料
+ */
+async function computeGradeDistribution() {
+  const gradeOrder = ['S', 'A+', 'A', 'B+', 'B', 'C+', 'F'];
+
+  const results = await Quiz.aggregate<
+    { _id: string; count: number }
+  >([
+    {
+      $project: {
+        grade: {
+          $switch: {
+            branches: [
+              { case: { $eq: ['$totalScore', 100] }, then: 'S' },
+              { case: { $gte: ['$totalScore', 90] }, then: 'A+' },
+              { case: { $gte: ['$totalScore', 80] }, then: 'A' },
+              { case: { $gte: ['$totalScore', 70] }, then: 'B+' },
+              { case: { $gte: ['$totalScore', 60] }, then: 'B' },
+              { case: { $gte: ['$totalScore', 50] }, then: 'C+' }
+            ],
+            default: 'F'
+          }
+        }
+      }
+    },
+    {
+      $group: {
+        _id: '$grade',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const distributionMap = new Map(results.map(item => [item._id, item.count]));
+
+  return gradeOrder.map(name => ({
+    name,
+    value: distributionMap.get(name) || 0
+  }));
+}
+
+/**
+ * Helper: 取得書籍參與比例
+ */
+async function computeBookDistribution() {
+  const bookStats = await Quiz.aggregate([
+    {
+      $group: {
+        _id: '$book',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    }
+  ]);
+
+  return bookStats.map(stat => ({
+    name: stat._id,
+    value: stat.count
+  }));
+}
+
+/**
+ * Helper: 取得錯題排行榜
+ */
+async function computeWrongQuestions(limit = 10) {
+  const results = await Quiz.aggregate<{
+    questionId: mongoose.Types.ObjectId;
+    question: string;
+    book: string;
+    totalAnswers: number;
+    correctAnswers: number;
+    correctRate: number;
+  }>([
+    {
+      $match: {
+        answerBitmap: { $type: 'string' }
+      }
+    },
+    {
+      $addFields: {
+        answerArray: {
+          $map: {
+            input: { $range: [0, { $size: '$questions' }] },
+            as: 'idx',
+            in: { $substrCP: ['$answerBitmap', '$$idx', 1] }
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        questionAnswers: {
+          $map: {
+            input: { $range: [0, { $size: '$questions' }] },
+            as: 'idx',
+            in: {
+              questionId: { $arrayElemAt: ['$questions', '$$idx'] },
+              isCorrect: {
+                $eq: [{ $arrayElemAt: ['$answerArray', '$$idx'] }, '1']
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      $unwind: '$questionAnswers'
+    },
+    {
+      $group: {
+        _id: '$questionAnswers.questionId',
+        totalAnswers: { $sum: 1 },
+        correctAnswers: {
+          $sum: {
+            $cond: ['$questionAnswers.isCorrect', 1, 0]
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'questions',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'question'
+      }
+    },
+    {
+      $unwind: '$question'
+    },
+    {
+      $addFields: {
+        questionText: '$question.question',
+        book: '$question.book',
+        correctRate: {
+          $cond: [
+            { $gt: ['$totalAnswers', 0] },
+            {
+              $divide: [
+                {
+                  $floor: {
+                    $multiply: [
+                      { $divide: ['$correctAnswers', '$totalAnswers'] },
+                      1000
+                    ]
+                  }
+                },
+                10
+              ]
+            },
+            0
+          ]
+        }
+      }
+    },
+    {
+      $sort: {
+        correctRate: 1,
+        totalAnswers: -1
+      }
+    },
+    {
+      $limit: limit
+    },
+    {
+      $project: {
+        _id: 0,
+        questionId: { $toString: '$_id' },
+        question: '$questionText',
+        book: '$book',
+        totalAnswers: 1,
+        correctAnswers: 1,
+        correctRate: 1
+      }
+    }
+  ]);
+
+  return results;
+}
+
 /**
  * 取得單一題目的統計資料
  * GET /api/analytics/questions/:questionId/stats
@@ -170,97 +460,9 @@ export async function getQuestionsStats(req: Request, res: Response, next: NextF
  */
 export async function getAnalyticsSummary(req: Request, res: Response, next: NextFunction) {
   try {
-    // 1. 累積測驗人數（使用 userId 去重）
-    const uniqueUsers = await Quiz.distinct('userId');
-    const totalUsers = uniqueUsers.length;
-
-    // 2. 平均等級（初階/進階的分布）
-    const difficultyStats = await Quiz.aggregate([
-      {
-        $group: {
-          _id: '$difficulty',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    const difficultyMap = new Map(
-      difficultyStats.map(stat => [stat._id, stat.count])
-    );
-
-    const beginnerCount = difficultyMap.get('初階') || 0;
-    const advancedCount = difficultyMap.get('進階') || 0;
-    const totalQuizzes = beginnerCount + advancedCount;
-
-    // 計算平均等級（初階比例）
-    const beginnerPercentage = totalQuizzes > 0
-      ? Math.round((beginnerCount / totalQuizzes) * 100)
-      : 0;
-
-    // 3. 平均正確率（每次測驗固定 20 題）
-    const correctRateStats = await Quiz.aggregate([
-      {
-        $group: {
-          _id: null,
-          avgCorrectCount: { $avg: '$correctCount' }
-        }
-      }
-    ]);
-
-    const avgCorrectRate = correctRateStats.length > 0
-      ? Math.floor((correctRateStats[0].avgCorrectCount / 20) * 1000) / 10
-      : 0;
-
-    // 計算平均等級（基於平均正確率）
-    const calculateAverageGrade = (percentage: number): string => {
-      if (percentage === 100) return 'S';
-      if (percentage >= 90) return 'A+';
-      if (percentage >= 80) return 'A';
-      if (percentage >= 70) return 'B+';
-      if (percentage >= 60) return 'B';
-      if (percentage >= 50) return 'C+';
-      return 'F';
-    };
-
-    const avgGrade = calculateAverageGrade(avgCorrectRate);
-
-    // 4. 最熱門書籍
-    const bookStats = await Quiz.aggregate([
-      {
-        $group: {
-          _id: '$book',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: { count: -1 }
-      },
-      {
-        $limit: 1
-      }
-    ]);
-
-    const mostPopularBook = bookStats.length > 0
-      ? {
-          book: bookStats[0]._id,
-          count: bookStats[0].count
-        }
-      : null;
-
     res.json({
       success: true,
-      data: {
-        totalUsers,
-        totalQuizzes,
-        difficultyDistribution: {
-          beginner: beginnerCount,
-          advanced: advancedCount,
-          beginnerPercentage
-        },
-        avgCorrectRate,
-        avgGrade,
-        mostPopularBook
-      }
+      data: await computeAnalyticsSummary()
     });
   } catch (error) {
     next(error);
@@ -273,46 +475,9 @@ export async function getAnalyticsSummary(req: Request, res: Response, next: Nex
  */
 export async function getGradeDistribution(req: Request, res: Response, next: NextFunction) {
   try {
-    // 計算每個 Quiz 的等級
-    const quizzes = await Quiz.find().select('totalScore').lean();
-
-    // 計算每個等級的函數（與前端和 getAnalyticsSummary 一致）
-    const calculateGrade = (score: number): string => {
-      const percentage = score; // totalScore 已經是百分比
-      if (percentage === 100) return 'S';
-      if (percentage >= 90) return 'A+';
-      if (percentage >= 80) return 'A';
-      if (percentage >= 70) return 'B+';
-      if (percentage >= 60) return 'B';
-      if (percentage >= 50) return 'C+';
-      return 'F';
-    };
-
-    // 統計各等級數量
-    const gradeCounts: Record<string, number> = {
-      'S': 0,
-      'A+': 0,
-      'A': 0,
-      'B+': 0,
-      'B': 0,
-      'C+': 0,
-      'F': 0
-    };
-
-    quizzes.forEach(quiz => {
-      const grade = calculateGrade(quiz.totalScore);
-      gradeCounts[grade]++;
-    });
-
-    // 轉換為圖表格式
-    const distribution = Object.entries(gradeCounts).map(([name, value]) => ({
-      name,
-      value
-    }));
-
     res.json({
       success: true,
-      data: distribution
+      data: await computeGradeDistribution()
     });
   } catch (error) {
     next(error);
@@ -325,27 +490,9 @@ export async function getGradeDistribution(req: Request, res: Response, next: Ne
  */
 export async function getBookDistribution(req: Request, res: Response, next: NextFunction) {
   try {
-    const bookStats = await Quiz.aggregate([
-      {
-        $group: {
-          _id: '$book',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: { count: -1 }
-      }
-    ]);
-
-    // 轉換為圖表格式
-    const distribution = bookStats.map(stat => ({
-      name: stat._id,
-      value: stat.count
-    }));
-
     res.json({
       success: true,
-      data: distribution
+      data: await computeBookDistribution()
     });
   } catch (error) {
     next(error);
@@ -361,64 +508,65 @@ export async function getWrongQuestions(req: Request, res: Response, next: NextF
   try {
     const limit = parseInt(req.query.limit as string) || 10;
 
-    // 取得所有題目
-    const questions = await Question.find().lean();
+    res.json({
+      success: true,
+      data: await computeWrongQuestions(limit)
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    // 計算每個題目的統計資料
-    const questionStats: Array<{
-      questionId: string;
-      question: string;
-      book: string;
-      totalAnswers: number;
-      correctAnswers: number;
-      correctRate: number;
-    }> = [];
+/**
+ * 取得綜合統計概覽
+ * GET /api/analytics/overview
+ * @query limit - 錯題排行榜回傳數量（預設 10）
+ */
+export async function getAnalyticsOverview(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    for (const question of questions) {
-      // 找出所有包含該題目的測驗
-      const quizzes = await Quiz.find({
-        questions: question._id
-      }).lean();
+    const cacheKey = `analytics:overview:${limit}`;
+    const cached = getCache<{
+      summary: Awaited<ReturnType<typeof computeAnalyticsSummary>>;
+      gradeDistribution: Awaited<ReturnType<typeof computeGradeDistribution>>;
+      bookDistribution: Awaited<ReturnType<typeof computeBookDistribution>>;
+      wrongQuestions: Awaited<ReturnType<typeof computeWrongQuestions>>;
+    }>(cacheKey);
 
-      let totalAnswers = 0;
-      let correctAnswers = 0;
-
-      // 遍歷每個測驗，檢查該題目的作答情況
-      for (const quiz of quizzes) {
-        const questionIndex = quiz.questions.findIndex(
-          (qId: mongoose.Types.ObjectId) => qId.toString() === question._id.toString()
-        );
-
-        if (questionIndex !== -1 && quiz.answerBitmap && quiz.answerBitmap.length === 20) {
-          totalAnswers++;
-          if (quiz.answerBitmap[questionIndex] === '1') {
-            correctAnswers++;
-          }
-        }
-      }
-
-      // 只包含有人作答過的題目
-      if (totalAnswers > 0) {
-        const correctRate = Math.floor((correctAnswers / totalAnswers) * 1000) / 10;
-        questionStats.push({
-          questionId: question._id.toString(),
-          question: question.question,
-          book: question.book,
-          totalAnswers,
-          correctAnswers,
-          correctRate
-        });
-      }
+    if (cached) {
+      return res.json({
+        success: true,
+        data: cached,
+        meta: { cache: 'hit', ttlMs: CACHE_TTL_MS }
+      });
     }
 
-    // 按正確率由低到高排序，取前 N 題
-    const wrongQuestions = questionStats
-      .sort((a, b) => a.correctRate - b.correctRate)
-      .slice(0, limit);
+    const [
+      summary,
+      gradeDistribution,
+      bookDistribution,
+      wrongQuestions
+    ] = await Promise.all([
+      computeAnalyticsSummary(),
+      computeGradeDistribution(),
+      computeBookDistribution(),
+      computeWrongQuestions(limit)
+    ]);
+
+    const payload = {
+      summary,
+      gradeDistribution,
+      bookDistribution,
+      wrongQuestions
+    };
+
+    setCache(cacheKey, payload);
 
     res.json({
       success: true,
-      data: wrongQuestions
+      data: payload,
+      meta: { cache: 'miss', ttlMs: CACHE_TTL_MS }
     });
   } catch (error) {
     next(error);

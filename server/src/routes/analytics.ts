@@ -6,10 +6,19 @@ import {
   getGradeDistribution,
   getBookDistribution,
   getWrongQuestions,
-  getLeaderboard
+  getLeaderboard,
+  getAnalyticsOverview
 } from '../controllers/analyticsController';
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/analytics/overview
+ * @desc    一次性取得統計摘要、等級分布、書籍分布與錯題排行榜
+ * @query   limit - 錯題排行榜回傳數量（預設 10）
+ * @access  Public
+ */
+router.get('/overview', getAnalyticsOverview);
 
 /**
  * @route   GET /api/analytics/summary
@@ -65,4 +74,3 @@ router.get('/questions/:questionId/stats', getQuestionStats);
 router.post('/questions/stats', getQuestionsStats);
 
 export default router;
-

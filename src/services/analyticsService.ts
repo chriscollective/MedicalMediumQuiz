@@ -54,6 +54,13 @@ export interface LeaderboardEntry {
   createdAt: string;
 }
 
+export interface AnalyticsOverview {
+  summary: AnalyticsSummary;
+  gradeDistribution: GradeDistribution[];
+  bookDistribution: BookDistribution[];
+  wrongQuestions: WrongQuestion[];
+}
+
 /**
  * 取得統計摘要
  */
@@ -107,5 +114,13 @@ export async function getWrongQuestions(limit: number = 10): Promise<WrongQuesti
  */
 export async function getLeaderboard(book: string, limit: number = 10): Promise<LeaderboardEntry[]> {
   const response = await api.get(`/analytics/leaderboard?book=${encodeURIComponent(book)}&limit=${limit}`);
+  return response.data.data;
+}
+
+/**
+ * 取得統計概覽（合併請求）
+ */
+export async function getAnalyticsOverview(limit: number = 10): Promise<AnalyticsOverview> {
+  const response = await api.get(`/analytics/overview?limit=${limit}`);
   return response.data.data;
 }

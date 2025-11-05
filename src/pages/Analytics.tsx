@@ -38,11 +38,8 @@ import {
   PencilLine,
 } from "lucide-react";
 import {
-  getAnalyticsSummary,
+  getAnalyticsOverview,
   AnalyticsSummary,
-  getGradeDistribution,
-  getBookDistribution,
-  getWrongQuestions,
   GradeDistribution,
   BookDistribution,
   WrongQuestion,
@@ -88,33 +85,39 @@ export function Analytics({ onBack }: AnalyticsProps) {
       try {
         setLoading(true);
 
-        // 並行載入所有統計資料
-        const [summaryData, gradeData, bookData, wrongQuestionsData] =
-          await Promise.all([
-            getAnalyticsSummary(),
-            getGradeDistribution(),
-            getBookDistribution(),
-            getWrongQuestions(10),
-          ]);
+        const startTime = performance.now();
+        console.log(
+          "[Analytics] 開始請求統計概覽",
+          new Date().toISOString()
+        );
 
-        setSummary(summaryData);
+        const overview = await getAnalyticsOverview(10);
+
+        setSummary(overview.summary);
 
         // 為等級分布添加顏色
-        const gradeWithColors = gradeData.map((item) => ({
+        const gradeWithColors = overview.gradeDistribution.map((item) => ({
           ...item,
           fill: gradeColors[item.name] || "#A8CBB7",
         }));
         setGradeDistribution(gradeWithColors);
 
         // 為書籍分布添加顏色
-        const bookWithColors = bookData.map((item, index) => ({
+        const bookWithColors = overview.bookDistribution.map((item, index) => ({
           ...item,
           fill: bookColors[index % bookColors.length],
         }));
         setBookParticipation(bookWithColors);
 
         // 設定錯題排行榜
-        setWrongQuestions(wrongQuestionsData);
+        setWrongQuestions(overview.wrongQuestions);
+
+        const endTime = performance.now();
+        console.log(
+          "[Analytics] 統計概覽載入完成",
+          new Date().toISOString(),
+          `耗時 ${(endTime - startTime).toFixed(0)} ms`
+        );
       } catch (error) {
         console.error("載入統計資料失敗:", error);
       } finally {

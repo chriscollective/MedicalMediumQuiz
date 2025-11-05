@@ -73,5 +73,10 @@ const QuizSchema: Schema = new Schema({
 // 複合索引：用於分析查詢
 QuizSchema.index({ userId: 1, createdAt: -1 });
 QuizSchema.index({ book: 1, difficulty: 1, createdAt: -1 });
+// 多鍵索引：加速以題目 ID 反查測驗記錄（題目統計、分析用）
+QuizSchema.index({ questions: 1 });
+// 單欄位索引：支援以分數/正確題數為主的統計與篩選
+QuizSchema.index({ totalScore: 1 });
+QuizSchema.index({ correctCount: 1 });
 
 export default mongoose.model<IQuiz>('Quiz', QuizSchema);
