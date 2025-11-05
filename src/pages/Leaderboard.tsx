@@ -38,9 +38,22 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
       try {
         setLoading(true);
 
+        const startTime = performance.now();
+        console.log(
+          "[Leaderboard] 開始請求榜單資料",
+          new Date().toISOString()
+        );
+
         // 使用新的 API 一次取得所有榜單
         const leaderboardMap = await getAllLeaderboards();
         setLeaderboards(leaderboardMap);
+
+        const endTime = performance.now();
+        console.log(
+          "[Leaderboard] 榜單資料載入完成",
+          new Date().toISOString(),
+          `耗時 ${(endTime - startTime).toFixed(0)} ms`
+        );
       } catch (error) {
         console.error("載入排行榜失敗:", error);
       } finally {

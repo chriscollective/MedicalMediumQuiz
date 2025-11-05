@@ -53,6 +53,12 @@ export function QuizPage({
       try {
         setLoading(true);
 
+        const startTime = performance.now();
+        console.log(
+          "[QuizPage] 開始載入測驗題目",
+          new Date().toISOString()
+        );
+
         // 使用映射轉換難度（beginner/advanced -> 初階/進階）
         const apiDifficulty = getDifficultyByKey(difficulty);
 
@@ -121,12 +127,25 @@ export function QuizPage({
 
         setQuestions(uiQuestions);
         setApiQuestions(apiQuestions); // 保存 API 題目資料以便提交時使用
+
+        console.log(
+          "[QuizPage] 題目載入完成",
+          new Date().toISOString(),
+          `題數 ${apiQuestions.length}`,
+          `耗時 ${(performance.now() - startTime).toFixed(0)} ms`
+        );
+
         setError(null);
       } catch (err: any) {
         console.error("載入題目失敗:", err);
         setError(err.message || "載入題目失敗，請稍後再試");
         // 使用 Mock 資料作為備案
         setQuestions(mockQuestions);
+
+        console.log(
+          "[QuizPage] 題目載入失敗，改用備援資料",
+          new Date().toISOString()
+        );
       } finally {
         setLoading(false);
       }
@@ -218,6 +237,7 @@ export function QuizPage({
         questionCount: apiQuestions.length,
       });
 
+      const createQuizStart = performance.now();
       const quiz = await createQuiz({
         userId,
         book: books.length > 1 ? "綜合" : primaryBook,
@@ -225,7 +245,9 @@ export function QuizPage({
         questionIds: apiQuestions.map((q) => q._id),
       });
 
-      console.log("✅ 測驗記錄已建立:", quiz._id);
+      console.log("✅ 測驗記錄已建立:", quiz._id, {
+        elapsedMs: Math.round(performance.now() - createQuizStart),
+      });
 
       // 步驟 2: 轉換答案格式：從 string/string[] 轉為 index number/number[]
       const submissionAnswers = questions.map((question) => {
@@ -258,11 +280,15 @@ export function QuizPage({
       });
 
       // 步驟 3: 提交答案到 API
+      const submitStart = performance.now();
       const result = await submitQuiz(quiz._id, {
         answers: submissionAnswers,
       });
 
-      console.log("測驗提交成功:", result);
+      console.log("測驗提交成功:", {
+        quizId: result.quizId,
+        elapsedMs: Math.round(performance.now() - submitStart),
+      });
 
       // 將 API 回傳的 answerBitmap 轉換為錯題列表
       const wrongQuestions: Array<{

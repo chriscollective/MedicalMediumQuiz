@@ -144,8 +144,13 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
     loadQuestions();
     (async () => {
       try {
+        const bookStart = performance.now();
         const books = await fetchBooks();
         setBooksOptions(books.map((b: Book) => b.name));
+        console.log(
+          "[QuestionBank] 書籍列表載入完成",
+          `耗時 ${(performance.now() - bookStart).toFixed(0)} ms`
+        );
       } catch (e) {
         console.error("載入書籍清單失敗:", e);
       }
@@ -155,6 +160,12 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
   const loadQuestions = async () => {
     try {
       setLoading(true);
+      const startTime = performance.now();
+      console.log(
+        "[QuestionBank] 開始載入題庫資料",
+        new Date().toISOString()
+      );
+
       const apiQuestions = await fetchQuestions({ limit: 1000 });
 
       // Convert API format to UI format
@@ -192,11 +203,21 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
           });
 
           setStats(statsMap);
+          console.log(
+            "[QuestionBank] 題目統計載入完成",
+            `耗時 ${(performance.now() - startTime).toFixed(0)} ms`
+          );
         } catch (statsError) {
           console.error("載入統計資料失敗:", statsError);
           // 不影響題目顯示，只是沒有統計資料
         }
       }
+
+      console.log(
+        "[QuestionBank] 題庫資料載入完成",
+        new Date().toISOString(),
+        `耗時 ${(performance.now() - startTime).toFixed(0)} ms`
+      );
     } catch (error) {
       console.error("載入題目失敗:", error);
       alert("載入題目失敗，請稍後再試");
