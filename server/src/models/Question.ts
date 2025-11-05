@@ -15,6 +15,7 @@ export interface IQuestion extends Document {
   history?: Array<{ updatedBy: string; updatedAt: Date }>;
   createdAt: Date;
   updatedAt: Date;
+  clonedFrom?: mongoose.Types.ObjectId;
 }
 
 const QuestionSchema: Schema = new Schema(
@@ -138,6 +139,11 @@ const QuestionSchema: Schema = new Schema(
         { _id: false }
       ),
     ],
+    clonedFrom: {
+      type: Schema.Types.ObjectId,
+      ref: "Question",
+      index: true,
+    },
   },
   {
     timestamps: true,

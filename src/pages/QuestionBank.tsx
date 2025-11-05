@@ -77,7 +77,7 @@ interface ApiQuestion {
   updatedAt?: string;
 }
 
-type QuestionTypeLabel = "單選" | "多選" | "填空" | "克漏字";
+type QuestionTypeLabel = "單選" | "多選" | "克漏字";
 
 interface QuestionData {
   id: string;
@@ -86,7 +86,6 @@ interface QuestionData {
   book: string;
   difficulty: string;
   options?: string[];
-  fillOptions?: string[];
   correctAnswer: number | number[];
   source?: string;
   explanation?: string;
@@ -99,14 +98,12 @@ interface QuestionData {
 const typeMapping: Record<ApiQuestion["type"], QuestionTypeLabel> = {
   single: "單選",
   multiple: "多選",
-  fill: "填空",
   cloze: "克漏字",
 };
 
 const reverseTypeMapping: Record<QuestionTypeLabel, ApiQuestion["type"]> = {
   單選: "single",
   多選: "multiple",
-  填空: "fill",
   克漏字: "cloze",
 };
 
@@ -184,15 +181,12 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
   const [booksOptions, setBooksOptions] = useState<string[]>([]);
 
   const DEFAULT_SINGLE_OPTIONS = ["", "", "", ""];
-  const DEFAULT_FILL_OPTIONS = ["", "", "", "", "", ""];
-
   const [formData, setFormData] = useState({
     book: "",
     difficulty: "初階",
     type: "單選" as QuestionTypeLabel,
     question: "",
     options: [...DEFAULT_SINGLE_OPTIONS],
-    fillOptions: [...DEFAULT_FILL_OPTIONS],
     clozeOptions: createClozeOptions(DEFAULT_CLOZE_OPTION_COUNT),
     correctAnswer: [] as number[], // 多選使用
     clozeOrder: createClozeOrder(DEFAULT_CLOZE_OPTION_COUNT),
@@ -231,15 +225,15 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
       const apiQuestions = await fetchQuestions({ limit: 1000 });
 
       // Convert API format to UI format
-      const uiQuestions: QuestionData[] = apiQuestions.map(
-        (q: ApiQuestion) => ({
+      const uiQuestions: QuestionData[] = apiQuestions
+        .filter((q) => q.type !== "fill")
+        .map((q: ApiQuestion) => ({
           id: q._id,
           question: q.question,
-          type: typeMapping[q.type],
+          type: typeMapping[q.type] ?? "單選",
           book: q.book,
           difficulty: q.difficulty,
           options: q.options,
-          fillOptions: q.fillOptions,
           correctAnswer: q.correctAnswer,
           source: q.source,
           explanation: q.explanation,
@@ -247,8 +241,7 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
           createdAt: q.createdAt,
           updatedBy: q.updatedBy,
           updatedAt: q.updatedAt,
-        })
-      );
+        }));
 
       setQuestions(uiQuestions);
 
@@ -375,17 +368,10 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
         question.options && question.options.length > 0
           ? [...question.options]
           : [...DEFAULT_SINGLE_OPTIONS],
-      fillOptions:
-        question.fillOptions && question.fillOptions.length > 0
-          ? [...question.fillOptions]
-          : [...DEFAULT_FILL_OPTIONS],
       clozeOptions,
       correctAnswer: question.type === "多選" ? correctAnswerArray : [],
       clozeOrder,
-      singleCorrectAnswer:
-        question.type === "單選" || question.type === "填空"
-          ? singleAnswer
-          : 0,
+      singleCorrectAnswer: question.type === "單選" ? singleAnswer : 0,
       explanation: question.explanation || "",
       source: question.source || "",
     });
@@ -400,7 +386,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
       type: "單選",
       question: "",
       options: [...DEFAULT_SINGLE_OPTIONS],
-      fillOptions: [...DEFAULT_FILL_OPTIONS],
       clozeOptions: createClozeOptions(DEFAULT_CLOZE_OPTION_COUNT),
       correctAnswer: [],
       clozeOrder: createClozeOrder(DEFAULT_CLOZE_OPTION_COUNT),
@@ -533,13 +518,13 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
       let apiOptions: string[] | undefined;
       let apiFillOptions: string[] | undefined;
 
-      const normalizeOptions = (options: string[]) =>
-        options
-          .map((opt, idx) => ({
-            value: opt.trim(),
-            originalIndex: idx,
-          }))
-          .filter((entry) => entry.value.length > 0);
+  const normalizeOptions = (options: string[]) =>
+    options
+      .map((opt, idx) => ({
+        value: opt.trim(),
+        originalIndex: idx,
+      }))
+      .filter((entry) => entry.value.length > 0);
 
       if (formData.type === "單選") {
         const optionEntries = normalizeOptions(formData.options);
@@ -577,21 +562,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
         }
         apiOptions = optionEntries.map((entry) => entry.value);
         apiCorrectAnswer = [...mappedAnswers].sort((a, b) => a - b);
-      } else if (formData.type === "填空") {
-        const fillEntries = normalizeOptions(formData.fillOptions);
-        if (fillEntries.length < 3) {
-          alert("填空題至少需要 3 個選項");
-          return;
-        }
-        const selectedIndex = fillEntries.findIndex(
-          (entry) => entry.originalIndex === formData.singleCorrectAnswer
-        );
-        if (selectedIndex === -1) {
-          alert("請選擇有效的正確答案");
-          return;
-        }
-        apiFillOptions = fillEntries.map((entry) => entry.value);
-        apiCorrectAnswer = selectedIndex;
       } else {
         // 克漏字
         const clozeOptions = formData.clozeOptions.map((opt) => opt.trim());
@@ -637,7 +607,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
         type: apiType,
         question: formData.question,
         options: apiOptions,
-        fillOptions: apiFillOptions,
         correctAnswer: apiCorrectAnswer,
         difficulty: formData.difficulty,
         book: formData.book,
@@ -847,14 +816,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                                 singleCorrectAnswer: 0,
                               };
                             }
-                            if (nextType === "填空") {
-                              return {
-                                ...prev,
-                                type: nextType,
-                                fillOptions: [...DEFAULT_FILL_OPTIONS],
-                                singleCorrectAnswer: 0,
-                              };
-                            }
                             // 克漏字
                             return {
                               ...prev,
@@ -877,7 +838,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                         <SelectContent>
                           <SelectItem value="單選">單選題</SelectItem>
                           <SelectItem value="多選">多選題</SelectItem>
-                          <SelectItem value="填空">填空題</SelectItem>
                           <SelectItem value="克漏字">克漏字題</SelectItem>
                         </SelectContent>
                       </Select>
@@ -958,27 +918,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                       </div>
                     )}
 
-                    {formData.type === "填空" && (
-                      <div className="space-y-2">
-                        <Label>填空選項 *</Label>
-                        {formData.fillOptions.map((opt, idx) => (
-                          <Input
-                            key={idx}
-                            placeholder={`選項 ${idx + 1}`}
-                            value={opt}
-                            onChange={(e) => {
-                              const newFillOptions = [...formData.fillOptions];
-                              newFillOptions[idx] = e.target.value;
-                              setFormData({
-                                ...formData,
-                                fillOptions: newFillOptions,
-                              });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
                     <div className="space-y-2">
                       <Label>正確答案 *</Label>
                       {formData.type === "單選" && (
@@ -1043,35 +982,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                               )
                           )}
                         </div>
-                      )}
-                      {formData.type === "填空" && (
-                        <RadioGroup
-                          value={String(formData.singleCorrectAnswer)}
-                          onValueChange={(v) =>
-                            setFormData({
-                              ...formData,
-                              singleCorrectAnswer: parseInt(v),
-                            })
-                          }
-                        >
-                          {formData.fillOptions.map(
-                            (opt, idx) =>
-                              opt.trim() && (
-                                <div
-                                  key={idx}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <RadioGroupItem
-                                    value={String(idx)}
-                                    id={`answer-${idx}`}
-                                  />
-                                  <Label htmlFor={`answer-${idx}`}>
-                                    {opt || `選項 ${idx + 1}`}
-                                  </Label>
-                                </div>
-                              )
-                          )}
-                        </RadioGroup>
                       )}
                       {formData.type === "克漏字" && (
                         <div className="space-y-3">
@@ -1388,7 +1298,6 @@ export function QuestionBank({ onBack }: QuestionBankProps) {
                     <SelectItem value="all">全部題型</SelectItem>
                     <SelectItem value="單選">單選題</SelectItem>
                     <SelectItem value="多選">多選題</SelectItem>
-                    <SelectItem value="填空">填空題</SelectItem>
                     <SelectItem value="克漏字">克漏字題</SelectItem>
                   </SelectContent>
                 </Select>

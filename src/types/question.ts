@@ -17,6 +17,7 @@ export type Question =
       updatedBy?: string;
       createdAt: string;
       updatedAt: string;
+      clonedFrom?: string;
     }
   | {
       _id: string;
@@ -33,22 +34,7 @@ export type Question =
       updatedBy?: string;
       createdAt: string;
       updatedAt: string;
-    }
-  | {
-      _id: string;
-      type: 'fill';
-      question: string;
-      options?: string[];
-      fillOptions: string[];
-      correctAnswer: number;
-      source?: string;
-      explanation?: string;
-      difficulty: Difficulty;
-      book: string;
-      createdBy?: string;
-      updatedBy?: string;
-      createdAt: string;
-      updatedAt: string;
+      clonedFrom?: string;
     }
   | {
       _id: string;
@@ -65,4 +51,5 @@ export type Question =
       updatedBy?: string;
       createdAt: string;
       updatedAt: string;
+      clonedFrom?: string;
     };
