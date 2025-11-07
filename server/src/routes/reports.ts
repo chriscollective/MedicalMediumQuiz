@@ -3,6 +3,7 @@ import {
   submitReport,
   getAllReports,
   updateReportStatus,
+  deleteReport,
   getReportStats,
 } from "../controllers/reportController";
 import { authenticate } from "../middleware/auth";
@@ -16,5 +17,6 @@ router.post("/", submitReport);
 router.get("/", authenticate, getAllReports);
 router.get("/stats", authenticate, getReportStats);
 router.patch("/:id", authenticate, updateReportStatus);
+router.delete("/:id", authenticate, deleteReport);
 
 export default router;

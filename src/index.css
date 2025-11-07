@@ -335,6 +335,8 @@
 
   :where(select:is([multiple], [size])) optgroup {
     font-weight: bolder;
+    color: #f2f3a2;
+    color: #f1f09a;
   }
 
   :where(select:is([multiple], [size])) optgroup option {
@@ -1089,6 +1091,11 @@
 
   .max-w-md {
     max-width: var(--container-md);
+  }
+
+  .max-w-32 {
+    max-width: 50rem;
+    overflow: hidden;
   }
 
   .min-w-0 {

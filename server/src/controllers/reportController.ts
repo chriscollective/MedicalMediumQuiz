@@ -107,6 +107,40 @@ export async function updateReportStatus(req: Request, res: Response) {
 }
 
 /**
+ * 刪除問題回報（管理員功能）
+ * 真正從資料庫中永久刪除
+ */
+export async function deleteReport(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    // 先查詢是否存在
+    const report = await Report.findById(id);
+
+    if (!report) {
+      return res.status(404).json({ error: "找不到該回報" });
+    }
+
+    // 從資料庫中刪除
+    await Report.findByIdAndDelete(id);
+
+    console.log(`✅ 問題回報已刪除 - ID: ${id}, 書籍: ${report.bookName}, 題型: ${report.questionType}`);
+
+    res.json({
+      message: "問題回報已刪除",
+      deletedReport: {
+        id: report._id,
+        bookName: report.bookName,
+        questionType: report.questionType,
+      },
+    });
+  } catch (error) {
+    console.error("刪除問題回報失敗:", error);
+    res.status(500).json({ error: "伺服器錯誤" });
+  }
+}
+
+/**
  * 取得問題回報統計（管理員功能）
  */
 export async function getReportStats(req: Request, res: Response) {

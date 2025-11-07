@@ -74,6 +74,22 @@ export async function updateReportStatus(
 }
 
 /**
+ * 刪除問題回報（管理員功能）
+ * 永久從資料庫中刪除
+ */
+export async function deleteReport(id: string) {
+  try {
+    const response = await api.delete(`/reports/${id}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("刪除問題回報失敗:", error);
+    throw new Error(
+      error.response?.data?.error || "刪除失敗，請稍後再試"
+    );
+  }
+}
+
+/**
  * 取得問題回報統計（管理員功能）
  */
 export async function getReportStats() {

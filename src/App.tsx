@@ -11,6 +11,7 @@ import { QuestionBank } from "./pages/QuestionBank";
 import { Leaderboard } from "./pages/Leaderboard";
 import { About } from "./pages/About";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { ReportManagement } from "./pages/ReportManagement";
 import { Question } from "./components/QuestionCard";
 import { getToken, getCurrentUser } from "./services/authService";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
@@ -24,6 +25,7 @@ type AppPage =
   | "analytics"
   | "questions"
   | "leaderboard"
+  | "reports"
   | "settings"
   | "about"
   | "privacy-policy";
@@ -218,6 +220,10 @@ function App() {
 
       {currentPage === "questions" && (
         <QuestionBank onBack={() => setCurrentPage("admin-dashboard")} />
+      )}
+
+      {currentPage === "reports" && (
+        <ReportManagement onBack={() => setCurrentPage("admin-dashboard")} />
       )}
 
       {currentPage === "leaderboard" && (

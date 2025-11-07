@@ -86,10 +86,7 @@ export function Analytics({ onBack }: AnalyticsProps) {
         setLoading(true);
 
         const startTime = performance.now();
-        console.log(
-          "[Analytics] 開始請求統計概覽",
-          new Date().toISOString()
-        );
+        console.log("[Analytics] 開始請求統計概覽", new Date().toISOString());
 
         const overview = await getAnalyticsOverview(10);
 
@@ -339,7 +336,7 @@ export function Analytics({ onBack }: AnalyticsProps) {
                         key={q.questionId}
                         className="border-[#A8CBB7]/20"
                       >
-                        <TableCell className="max-w-md">{q.question}</TableCell>
+                        <TableCell className="max-w-32">{q.question}</TableCell>
                         <TableCell>
                           <span className="px-2 py-1 bg-[#F7E6C3]/50 rounded text-sm">
                             {q.book}

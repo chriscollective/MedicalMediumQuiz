@@ -39,7 +39,7 @@ app.use(
       }
     },
     credentials: true, // 允許攜帶 Cookie
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
