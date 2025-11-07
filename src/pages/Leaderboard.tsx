@@ -64,10 +64,7 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
         setError(null);
 
         const startTime = performance.now();
-        console.log(
-          "[Leaderboard] 開始請求榜單資料",
-          new Date().toISOString()
-        );
+        console.log("[Leaderboard] 開始請求榜單資料", new Date().toISOString());
 
         // 使用新的 API 一次取得所有榜單（帶自動重試）
         const leaderboardMap = await fetchWithRetry(() => getAllLeaderboards());
@@ -220,17 +217,18 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                 </div>
               ) : connectionError ? (
                 // 連線錯誤 Empty State
-                <div className="py-20 text-center">
+                <div className="py-20 text-center relative" style={{ zIndex: 50 }}>
                   <div
                     style={{
                       width: "100px",
                       height: "100px",
                       borderRadius: "50%",
-                      backgroundColor: "#FEE2E2",
+                      backgroundColor: "#F7E6C3",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       margin: "0 auto 24px",
+                      border: "3px solid #A8CBB7",
                     }}
                   >
                     <svg
@@ -239,7 +237,7 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                       height="50"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#E76F51"
+                      stroke="#A8CBB7"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -252,7 +250,7 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                   </div>
                   <h3
                     className="text-2xl font-bold mb-3"
-                    style={{ color: "#E76F51" }}
+                    style={{ color: "#A8CBB7" }}
                   >
                     資料庫連線失敗
                   </h3>
@@ -261,7 +259,8 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                   </p>
                   <Button
                     onClick={handleRetry}
-                    className="bg-[#A8CBB7] hover:bg-[#8FB0A0] text-white px-6 py-3 rounded-lg"
+                    className="bg-[#A8CBB7] hover:bg-[#8FB0A0] text-white px-6 py-3 rounded-lg relative"
+                    style={{ zIndex: 100, position: "relative", cursor: "pointer" }}
                   >
                     重新載入資料
                   </Button>

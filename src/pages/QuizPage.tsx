@@ -441,11 +441,9 @@ export function QuizPage({
   // Loading 狀態
   if (loading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#FAFAF7" }}
-      >
-        <div style={{ textAlign: "center" }}>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-linear-to-br from-[#FAFAF7] via-[#F7E6C3]/20 to-[#A8CBB7]/10">
+        <NatureAccents variant="minimal" />
+        <div style={{ textAlign: "center", position: "relative", zIndex: 10 }}>
           <div
             style={{
               width: "64px",
@@ -487,8 +485,8 @@ export function QuizPage({
             <div
               className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center"
               style={{
-                border: "3px solid #E76F51",
-                boxShadow: "0 20px 60px rgba(231, 111, 81, 0.2)",
+                border: "3px solid #A8CBB7",
+                boxShadow: "0 20px 60px rgba(168, 203, 183, 0.3)",
               }}
             >
               {/* 錯誤圖示 */}
@@ -497,11 +495,12 @@ export function QuizPage({
                   width: "120px",
                   height: "120px",
                   borderRadius: "50%",
-                  backgroundColor: "#FEE2E2",
+                  backgroundColor: "#F7E6C3",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   margin: "0 auto 24px",
+                  border: "3px solid #A8CBB7",
                 }}
               >
                 <svg
@@ -510,7 +509,7 @@ export function QuizPage({
                   height="64"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#E76F51"
+                  stroke="#A8CBB7"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -524,7 +523,7 @@ export function QuizPage({
               {/* 錯誤標題 */}
               <h2
                 className="text-3xl md:text-4xl font-bold mb-4"
-                style={{ color: "#E76F51" }}
+                style={{ color: "#A8CBB7" }}
               >
                 連線失敗
               </h2>
