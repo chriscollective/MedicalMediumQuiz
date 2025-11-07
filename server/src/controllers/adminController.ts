@@ -3,20 +3,35 @@ import { AuthRequest } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 
-// 強制要求設定 JWT_SECRET 環境變數
-const JWT_SECRET = process.env.JWT_SECRET;
+// ============================================
+// JWT_SECRET 延遲驗證（Lazy Validation）
+// ============================================
+// 使用 getter 函數，只在第一次使用時才驗證
+// 這樣可以確保 dotenv.config() 已經執行
+let _jwtSecretCache: string | null = null;
 
-if (!JWT_SECRET) {
-  throw new Error(
-    '❌ CRITICAL: JWT_SECRET environment variable is not set!\n' +
-    'Please set JWT_SECRET in your .env file.'
-  );
-}
+function getJwtSecret(): string {
+  if (_jwtSecretCache) {
+    return _jwtSecretCache;
+  }
 
-if (JWT_SECRET.length < 32) {
-  throw new Error(
-    '❌ CRITICAL: JWT_SECRET is too short! Must be at least 32 characters.'
-  );
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET environment variable is not set!\n' +
+      'Please set JWT_SECRET in your .env file.'
+    );
+  }
+
+  if (secret.length < 32) {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET is too short! Must be at least 32 characters.'
+    );
+  }
+
+  _jwtSecretCache = secret;
+  return secret;
 }
 
 const JWT_EXPIRES_IN = '7d'; // Token valid for 7 days
@@ -96,7 +111,7 @@ export const login = async (req: Request, res: Response) => {
         username: admin.username,
         role: admin.role
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: JWT_EXPIRES_IN }
     );
 
@@ -135,7 +150,7 @@ export const verifyToken = async (req: Request, res: Response) => {
       });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJwtSecret()) as any;
 
     // Check if admin still exists and is active
     const admin = await Admin.findById(decoded.id);
@@ -187,7 +202,7 @@ export const getCurrentAdmin = async (req: Request, res: Response) => {
       });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJwtSecret()) as any;
     const admin = await Admin.findById(decoded.id).select('-password');
 
     if (!admin) {
