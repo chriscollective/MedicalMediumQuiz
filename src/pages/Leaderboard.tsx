@@ -14,6 +14,7 @@ import { NatureDecoration } from "../components/NatureDecoration";
 import { FloatingHerbs } from "../components/FloatingHerbs";
 import { Sparkles } from "lucide-react";
 import { useIsMobile } from "../utils/useIsMobile";
+// import { mmTitles } from "../data/mmContent"; // 暫時遮蔽 MM 稱號功能
 
 interface LeaderboardProps {
   onBack: () => void;
@@ -32,20 +33,41 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
     Record<string, LeaderboardEntry[]>
   >({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState(false);
+
+  // 自動重試函數
+  const fetchWithRetry = async (
+    fetchFn: () => Promise<Record<string, LeaderboardEntry[]>>,
+    maxRetries = 2
+  ): Promise<Record<string, LeaderboardEntry[]>> => {
+    for (let i = 0; i <= maxRetries; i++) {
+      try {
+        return await fetchFn();
+      } catch (error) {
+        console.log(`[Leaderboard] 嘗試 ${i + 1}/${maxRetries + 1} 失敗`);
+        if (i === maxRetries) {
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, (i + 1) * 1000));
+        console.log(`[Leaderboard] 等待 ${i + 1} 秒後重試...`);
+      }
+    }
+    throw new Error("Retry failed");
+  };
 
   useEffect(() => {
     async function loadAllLeaderboards() {
       try {
         setLoading(true);
+        setConnectionError(false);
+        setError(null);
 
         const startTime = performance.now();
-        console.log(
-          "[Leaderboard] 開始請求榜單資料",
-          new Date().toISOString()
-        );
+        console.log("[Leaderboard] 開始請求榜單資料", new Date().toISOString());
 
-        // 使用新的 API 一次取得所有榜單
-        const leaderboardMap = await getAllLeaderboards();
+        // 使用新的 API 一次取得所有榜單（帶自動重試）
+        const leaderboardMap = await fetchWithRetry(() => getAllLeaderboards());
         setLeaderboards(leaderboardMap);
 
         const endTime = performance.now();
@@ -54,8 +76,10 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
           new Date().toISOString(),
           `耗時 ${(endTime - startTime).toFixed(0)} ms`
         );
-      } catch (error) {
-        console.error("載入排行榜失敗:", error);
+      } catch (error: any) {
+        console.error("載入排行榜失敗（所有重試都失敗）:", error);
+        setConnectionError(true);
+        setError(error.message || "無法連接到伺服器");
       } finally {
         setLoading(false);
       }
@@ -63,6 +87,14 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
 
     loadAllLeaderboards();
   }, []);
+
+  // 手動重新載入函數
+  const handleRetry = () => {
+    setConnectionError(false);
+    setError(null);
+    setLoading(true);
+    window.location.reload();
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -183,6 +215,63 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                     載入排行榜中...
                   </span>
                 </div>
+              ) : connectionError ? (
+                // 連線錯誤 Empty State
+                <div
+                  className="py-20 text-center relative"
+                  style={{ zIndex: 50 }}
+                >
+                  <div
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      backgroundColor: "#F7E6C3",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto 24px",
+                      border: "3px solid #A8CBB7",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="50"
+                      height="50"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#A8CBB7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                      <line x1="12" y1="20" x2="12.01" y2="20" />
+                    </svg>
+                  </div>
+                  <h3
+                    className="text-2xl font-bold mb-3"
+                    style={{ color: "#fe9882" }}
+                  >
+                    資料庫連線失敗
+                  </h3>
+                  <p className="text-[#636e72] text-lg mb-6">
+                    {error || "無法連接到伺服器，請檢查您的網路連線"}
+                  </p>
+                  <Button
+                    onClick={handleRetry}
+                    className="bg-[#A8CBB7] hover:bg-[#8FB0A0] text-white px-6 py-3 rounded-lg relative"
+                    style={{
+                      zIndex: 100,
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                  >
+                    重新載入資料
+                  </Button>
+                </div>
               ) : currentLeaderboard.length === 0 ? (
                 <div className="py-20 text-center">
                   <Trophy className="w-16 h-16 text-[#A8CBB7]/30 mx-auto mb-4" />
@@ -253,6 +342,13 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
                           {formatDate(entry.createdAt)}
                         </div>
                       </div>
+
+                      {/* MM Title - 暫時遮蔽 */}
+                      {/* <div className="flex items-center px-3">
+                        <span className="text-base md:text-lg font-semibold text-[#2d3436] whitespace-nowrap">
+                          {mmTitles[entry.grade as keyof typeof mmTitles]}
+                        </span>
+                      </div> */}
 
                       {/* Grade Badge */}
                       <div className="flex items-center">

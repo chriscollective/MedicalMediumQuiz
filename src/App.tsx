@@ -1,19 +1,26 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, lazy, Suspense } from "react";
 import { LandingPage } from "./pages/LandingPage";
 import { QuizPage } from "./pages/QuizPage";
 import { ResultPage } from "./pages/ResultPage";
-import { AdminLogin } from "./pages/AdminLogin";
-import { AdminDashboard } from "./pages/AdminDashboard";
-import { Analytics } from "./pages/Analytics";
-import { AdminSettings } from "./pages/AdminSettings";
-
-import { QuestionBank } from "./pages/QuestionBank";
-import { Leaderboard } from "./pages/Leaderboard";
-import { About } from "./pages/About";
-import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { Question } from "./components/QuestionCard";
 import { getToken, getCurrentUser } from "./services/authService";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
+
+// ============================================
+// Code Splitting: 按需載入頁面（減少初始 bundle 大小）
+// ============================================
+// 管理員相關頁面（只有管理員會用到，約 40% 的使用者不會訪問）
+const AdminLogin = lazy(() => import("./pages/AdminLogin").then(m => ({ default: m.AdminLogin })));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard").then(m => ({ default: m.AdminDashboard })));
+const Analytics = lazy(() => import("./pages/Analytics").then(m => ({ default: m.Analytics })));
+const AdminSettings = lazy(() => import("./pages/AdminSettings").then(m => ({ default: m.AdminSettings })));
+const QuestionBank = lazy(() => import("./pages/QuestionBank").then(m => ({ default: m.QuestionBank })));
+const ReportManagement = lazy(() => import("./pages/ReportManagement").then(m => ({ default: m.ReportManagement })));
+
+// 次要頁面（不是核心測驗流程）
+const Leaderboard = lazy(() => import("./pages/Leaderboard").then(m => ({ default: m.Leaderboard })));
+const About = lazy(() => import("./pages/About").then(m => ({ default: m.About })));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
 
 type AppPage =
   | "landing"
@@ -24,6 +31,7 @@ type AppPage =
   | "analytics"
   | "questions"
   | "leaderboard"
+  | "reports"
   | "settings"
   | "about"
   | "privacy-policy";
@@ -42,6 +50,41 @@ interface QuizState {
 
 // 測驗總題數常數
 const QUIZ_TOTAL_QUESTIONS = 20;
+
+// Loading 組件（用於 Suspense fallback）
+function PageLoading() {
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#FAFAF7",
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            border: "4px solid #E5C17A",
+            borderTopColor: "transparent",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            margin: "0 auto 16px",
+          }}
+        />
+        <p style={{ color: "#636e72", fontSize: "14px" }}>載入中...</p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [currentPage, setCurrentPage] = useState<AppPage>("landing");
@@ -162,6 +205,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      {/* 核心頁面：立即載入（不需要 Suspense） */}
       {currentPage === "landing" && (
         <LandingPage
           onStart={handleStartQuiz}
@@ -197,44 +241,51 @@ function App() {
         />
       )}
 
-      {currentPage === "admin-login" && (
-        <AdminLogin
-          onLogin={handleAdminLogin}
-          onBack={() => setCurrentPage("landing")}
-        />
-      )}
+      {/* 動態載入頁面：按需載入（使用 Suspense） */}
+      <Suspense fallback={<PageLoading />}>
+        {currentPage === "admin-login" && (
+          <AdminLogin
+            onLogin={handleAdminLogin}
+            onBack={() => setCurrentPage("landing")}
+          />
+        )}
 
-      {currentPage === "admin-dashboard" && (
-        <AdminDashboard
-          username={adminUser}
-          onNavigate={handleAdminNavigate}
-          onLogout={handleAdminLogout}
-        />
-      )}
+        {currentPage === "admin-dashboard" && (
+          <AdminDashboard
+            username={adminUser}
+            onNavigate={handleAdminNavigate}
+            onLogout={handleAdminLogout}
+          />
+        )}
 
-      {currentPage === "analytics" && (
-        <Analytics onBack={() => setCurrentPage("admin-dashboard")} />
-      )}
+        {currentPage === "analytics" && (
+          <Analytics onBack={() => setCurrentPage("admin-dashboard")} />
+        )}
 
-      {currentPage === "questions" && (
-        <QuestionBank onBack={() => setCurrentPage("admin-dashboard")} />
-      )}
+        {currentPage === "questions" && (
+          <QuestionBank onBack={() => setCurrentPage("admin-dashboard")} />
+        )}
 
-      {currentPage === "leaderboard" && (
-        <Leaderboard onBack={() => setCurrentPage(leaderboardSource)} />
-      )}
+        {currentPage === "reports" && (
+          <ReportManagement onBack={() => setCurrentPage("admin-dashboard")} />
+        )}
 
-      {currentPage === "settings" && (
-        <AdminSettings onBack={() => setCurrentPage("admin-dashboard")} />
-      )}
+        {currentPage === "leaderboard" && (
+          <Leaderboard onBack={() => setCurrentPage(leaderboardSource)} />
+        )}
 
-      {currentPage === "about" && (
-        <About onBack={() => setCurrentPage("landing")} />
-      )}
+        {currentPage === "settings" && (
+          <AdminSettings onBack={() => setCurrentPage("admin-dashboard")} />
+        )}
 
-      {currentPage === "privacy-policy" && (
-        <PrivacyPolicy onBack={() => setCurrentPage("landing")} />
-      )}
+        {currentPage === "about" && (
+          <About onBack={() => setCurrentPage("landing")} />
+        )}
+
+        {currentPage === "privacy-policy" && (
+          <PrivacyPolicy onBack={() => setCurrentPage("landing")} />
+        )}
+      </Suspense>
 
       {/* Vercel Analytics - 追蹤網站流量 */}
       <VercelAnalytics />

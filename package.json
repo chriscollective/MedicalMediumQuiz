@@ -39,6 +39,7 @@
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.1.0",
+    "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.487.0",
@@ -78,8 +79,7 @@
     "server": "nodemon --watch server/src --ext ts --exec tsx server/src/server.ts",
     "server:build": "tsc -p server/tsconfig.json",
     "server:start": "node server/dist/server.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
-    "migrate:questions": "tsx server/src/scripts/migrate-questions.ts",
-    "clone:fill-to-cloze": "tsx server/src/scripts/cloneFillToCloze.ts"
+    "dev:all": "chcp 65001 >nul & concurrently \"npm run dev\" \"npm run server\"",
+    "migrate:questions": "tsx server/src/scripts/migrate-questions.ts"
   }
 }

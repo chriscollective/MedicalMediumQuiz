@@ -9,12 +9,21 @@ import {
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { NatureAccents } from "../components/NatureAccents";
-import { BarChart3, BookOpen, LogOut, Settings, Trophy } from "lucide-react";
+import {
+  BarChart3,
+  BookOpen,
+  LogOut,
+  Settings,
+  Trophy,
+  AlertCircle,
+} from "lucide-react";
 import { logout } from "../services/authService";
 
 interface AdminDashboardProps {
   username: string;
-  onNavigate: (page: "analytics" | "questions" | "leaderboard" | "settings") => void;
+  onNavigate: (
+    page: "analytics" | "questions" | "leaderboard" | "settings" | "reports"
+  ) => void;
   onLogout: () => void;
 }
 
@@ -51,9 +60,16 @@ export function AdminDashboard({
       action: () => onNavigate("questions"),
     },
     {
+      id: "reports",
+      title: "問題回報",
+      description: "查看與處理使用者回報的問題",
+      color: "from-[#FB923C] to-[#F97316]",
+      action: () => onNavigate("reports"),
+    },
+    {
       id: "settings",
       title: "管理員設定",
-      description: "系統設定與權限管理（開發中）",
+      description: "系統設定與權限管理",
       color: "from-[#636e72] to-[#2d3436]",
       action: () => onNavigate("settings"),
     },
@@ -76,6 +92,8 @@ export function AdminDashboard({
         return <Trophy className="w-7 h-7 text-white" />;
       case "questions":
         return <BookOpen className="w-7 h-7 text-white" />;
+      case "reports":
+        return <AlertCircle className="w-7 h-7 text-white" />;
       case "settings":
         return <Settings className="w-7 h-7 text-white" />;
       default:

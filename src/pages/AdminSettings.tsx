@@ -82,14 +82,6 @@ export function AdminSettings({ onBack }: AdminSettingsProps) {
       color: "from-[#E5C17A] to-[#d4b86a]",
       action: () => setMode("admin-list"),
     },
-    {
-      id: "feedback",
-      title: "修改建議與問題回報(等待開發中)",
-      description: "提出站務相關的建議或問題回報",
-      icon: <MessageSquare className="w-6 h-6 text-white" />,
-      color: "from-[#A8CBB7] to-[#2d3436]",
-      action: () => alert("敬請期待：修改建議與問題回報"),
-    },
   ];
 
   return (

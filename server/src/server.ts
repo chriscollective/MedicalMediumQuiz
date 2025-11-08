@@ -1,6 +1,14 @@
+// ============================================
+// 🚨 CRITICAL: 必須最先載入環境變數！
+// ============================================
+// 在 import 任何其他模組之前先載入 .env
+// 因為 middleware/auth.ts 需要 JWT_SECRET
+import dotenv from "dotenv";
+dotenv.config();
+
+// 現在可以安全地 import 其他模組了
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { connectDatabase } from "./config/database";
 import { errorHandler } from "./middleware/errorHandler";
 import questionsRouter from "./routes/questions";
@@ -9,8 +17,49 @@ import adminRouter from "./routes/admin";
 import analyticsRouter from "./routes/analytics";
 import leaderboardRouter from "./routes/leaderboardRoutes";
 import booksRouter from "./routes/books";
+import reportsRouter from "./routes/reports";
 
-dotenv.config();
+// ============================================
+// 環境變數驗證（啟動時檢查）
+// ============================================
+console.log('🔍 驗證環境變數...');
+
+const requiredEnvVars = [
+  { name: 'MONGODB_URI', description: 'MongoDB 連線字串' },
+  { name: 'JWT_SECRET', description: 'JWT 加密金鑰', minLength: 32 },
+];
+
+const missingVars: string[] = [];
+const weakVars: string[] = [];
+
+requiredEnvVars.forEach(({ name, description, minLength }) => {
+  const value = process.env[name];
+
+  if (!value) {
+    missingVars.push(`  ❌ ${name} - ${description}`);
+  } else if (minLength && value.length < minLength) {
+    weakVars.push(
+      `  ⚠️  ${name} - 長度不足 (${value.length} < ${minLength} 字元)`
+    );
+  } else {
+    console.log(`  ✅ ${name} - 已設定`);
+  }
+});
+
+if (missingVars.length > 0) {
+  console.error('\n❌ 缺少必要的環境變數：\n' + missingVars.join('\n'));
+  console.error('\n請在 .env 文件中設定這些變數。');
+  console.error('參考 .env.example 檔案。\n');
+  process.exit(1);
+}
+
+if (weakVars.length > 0) {
+  console.error('\n⚠️  環境變數強度不足：\n' + weakVars.join('\n'));
+  console.error('\n為了安全性，請使用更強的值。\n');
+  process.exit(1);
+}
+
+console.log('✅ 所有環境變數驗證通過\n');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,7 +87,7 @@ app.use(
       }
     },
     credentials: true, // 允許攜帶 Cookie
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -73,6 +122,7 @@ app.use("/api/quizzes", quizzesRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/leaderboard", leaderboardRouter);
 app.use("/api/books", booksRouter);
+app.use("/api/reports", reportsRouter);
 
 // Error handling
 app.use(errorHandler);

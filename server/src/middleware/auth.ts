@@ -2,7 +2,40 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-please-change-in-production';
+// ============================================
+// JWT_SECRET 延遲驗證（Lazy Validation）
+// ============================================
+// 使用 getter 函數，只在第一次使用時才驗證
+// 這樣可以確保 dotenv.config() 已經執行
+let _jwtSecretCache: string | null = null;
+
+function getJwtSecret(): string {
+  if (_jwtSecretCache) {
+    return _jwtSecretCache;
+  }
+
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET environment variable is not set!\n' +
+      'Please set JWT_SECRET in your .env file with a strong secret key (at least 32 characters).\n' +
+      'Example: JWT_SECRET=your-very-long-and-secure-random-string-here'
+    );
+  }
+
+  if (secret.length < 32) {
+    throw new Error(
+      '❌ CRITICAL: JWT_SECRET is too short!\n' +
+      `Current length: ${secret.length} characters\n` +
+      'JWT_SECRET must be at least 32 characters for security.\n' +
+      'Please generate a stronger secret key.'
+    );
+  }
+
+  _jwtSecretCache = secret;
+  return secret;
+}
 
 export interface AuthRequest extends Request {
   admin?: {
@@ -29,7 +62,7 @@ export const authenticate = async (
     }
 
     // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJwtSecret()) as any;
 
     // Check if admin exists and is active
     const admin = await Admin.findById(decoded.id);
