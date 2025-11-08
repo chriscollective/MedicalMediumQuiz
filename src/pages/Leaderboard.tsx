@@ -89,11 +89,32 @@ export function Leaderboard({ onBack }: LeaderboardProps) {
   }, []);
 
   // 手動重新載入函數
-  const handleRetry = () => {
-    setConnectionError(false);
-    setError(null);
-    setLoading(true);
-    window.location.reload();
+  const handleRetry = async () => {
+    try {
+      setConnectionError(false);
+      setError(null);
+      setLoading(true);
+
+      const startTime = performance.now();
+      console.log("[Leaderboard] 手動重試：開始請求榜單資料", new Date().toISOString());
+
+      // 使用新的 API 一次取得所有榜單（帶自動重試）
+      const leaderboardMap = await fetchWithRetry(() => getAllLeaderboards());
+      setLeaderboards(leaderboardMap);
+
+      const endTime = performance.now();
+      console.log(
+        "[Leaderboard] 手動重試成功",
+        new Date().toISOString(),
+        `耗時 ${(endTime - startTime).toFixed(0)} ms`
+      );
+    } catch (error: any) {
+      console.error("手動重試失敗:", error);
+      setConnectionError(true);
+      setError(error.message || "無法連接到伺服器");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (dateString: string) => {

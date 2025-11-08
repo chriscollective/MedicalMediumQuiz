@@ -74,126 +74,124 @@ export function QuizPage({
     throw new Error("Retry failed"); // TypeScript 要求的返回
   };
 
-  // 載入題目
-  useEffect(() => {
-    async function loadQuestions() {
-      try {
-        setLoading(true);
-        setConnectionError(false);
-        setError(null);
+  // 載入題目的函數（提取出來以便重用）
+  const loadQuestions = async () => {
+    try {
+      setLoading(true);
+      setConnectionError(false);
+      setError(null);
 
-        const startTime = performance.now();
-        console.log("[QuizPage] 開始載入測驗題目", new Date().toISOString());
+      const startTime = performance.now();
+      console.log("[QuizPage] 開始載入測驗題目", new Date().toISOString());
 
-        // 使用映射轉換難度（beginner/advanced -> 初階/進階）
-        const apiDifficulty = getDifficultyByKey(difficulty);
+      // 使用映射轉換難度（beginner/advanced -> 初階/進階）
+      const apiDifficulty = getDifficultyByKey(difficulty);
 
-        let apiQuestions: ApiQuestion[];
+      let apiQuestions: ApiQuestion[];
 
-        // 如果選擇多本書，使用混合抽題
-        if (books.length > 1) {
-          // 轉換所有書籍名稱
-          const dbBooks = books.map((bookDisplay) =>
-            getBookByDisplay(bookDisplay)
-          );
-          console.log("📚 準備載入多本書混合題目:", {
-            books: dbBooks,
-            difficulty: apiDifficulty,
-          });
-
-          apiQuestions = await fetchWithRetry(() =>
-            fetchMixedQuizQuestions(dbBooks, apiDifficulty)
-          );
-        } else {
-          // 單本書，使用原本的邏輯
-          const bookDisplay = books[0] || "《神奇西芹汁》";
-          const book = getBookByDisplay(bookDisplay);
-          console.log("📚 準備載入單本書題目:", {
-            book,
-            difficulty: apiDifficulty,
-          });
-
-          apiQuestions = await fetchWithRetry(() =>
-            fetchQuizQuestions(book, apiDifficulty)
-          );
-        }
-
-        if (apiQuestions.length !== 20) {
-          throw new Error(
-            `題庫不足，僅取得 ${apiQuestions.length} 題，需要 20 題`
-          );
-        }
-
-        // 轉換 API 格式為 UI 格式
-        const uiQuestions: Question[] = apiQuestions.map((q: ApiQuestion) => {
-          let correctAnswerStr: string | string[] | undefined;
-
-          if (q.type === "single") {
-            correctAnswerStr = q.options?.[q.correctAnswer as number] || "";
-          } else if (q.type === "multiple") {
-            const indices = q.correctAnswer as number[];
-            correctAnswerStr = indices
-              .map((idx) => q.options?.[idx] || "")
-              .filter(Boolean);
-          } else if (q.type === "cloze") {
-            const indices = Array.isArray(q.correctAnswer)
-              ? (q.correctAnswer as number[])
-              : [];
-            correctAnswerStr = indices
-              .map((idx) => q.options?.[idx] || "")
-              .filter(Boolean);
-          }
-
-          return {
-            id: q._id,
-            type: q.type,
-            question: q.question,
-            options: q.options,
-            clozeLength:
-              q.type === "cloze" && Array.isArray(q.correctAnswer)
-                ? (q.correctAnswer as number[]).length
-                : undefined,
-            correctAnswer: correctAnswerStr,
-            source: q.source,
-            explanation: q.explanation,
-          };
+      // 如果選擇多本書，使用混合抽題
+      if (books.length > 1) {
+        // 轉換所有書籍名稱
+        const dbBooks = books.map((bookDisplay) =>
+          getBookByDisplay(bookDisplay)
+        );
+        console.log("📚 準備載入多本書混合題目:", {
+          books: dbBooks,
+          difficulty: apiDifficulty,
         });
 
-        setQuestions(uiQuestions);
-        setApiQuestions(apiQuestions); // 保存 API 題目資料以便提交時使用
-
-        console.log(
-          "[QuizPage] 題目載入完成",
-          new Date().toISOString(),
-          `題數 ${apiQuestions.length}`,
-          `耗時 ${(performance.now() - startTime).toFixed(0)} ms`
+        apiQuestions = await fetchWithRetry(() =>
+          fetchMixedQuizQuestions(dbBooks, apiDifficulty)
         );
+      } else {
+        // 單本書，使用原本的邏輯
+        const bookDisplay = books[0] || "《神奇西芹汁》";
+        const book = getBookByDisplay(bookDisplay);
+        console.log("📚 準備載入單本書題目:", {
+          book,
+          difficulty: apiDifficulty,
+        });
 
-        setError(null);
-      } catch (err: any) {
-        console.error("載入題目失敗（所有重試都失敗）:", err);
-        setConnectionError(true);
-        setError(err.message || "無法連接到伺服器");
-        console.log(
-          "[QuizPage] 題目載入失敗（所有重試都失敗）",
-          new Date().toISOString()
+        apiQuestions = await fetchWithRetry(() =>
+          fetchQuizQuestions(book, apiDifficulty)
         );
-      } finally {
-        setLoading(false);
       }
-    }
 
+      if (apiQuestions.length !== 20) {
+        throw new Error(
+          `題庫不足，僅取得 ${apiQuestions.length} 題，需要 20 題`
+        );
+      }
+
+      // 轉換 API 格式為 UI 格式
+      const uiQuestions: Question[] = apiQuestions.map((q: ApiQuestion) => {
+        let correctAnswerStr: string | string[] | undefined;
+
+        if (q.type === "single") {
+          correctAnswerStr = q.options?.[q.correctAnswer as number] || "";
+        } else if (q.type === "multiple") {
+          const indices = q.correctAnswer as number[];
+          correctAnswerStr = indices
+            .map((idx) => q.options?.[idx] || "")
+            .filter(Boolean);
+        } else if (q.type === "cloze") {
+          const indices = Array.isArray(q.correctAnswer)
+            ? (q.correctAnswer as number[])
+            : [];
+          correctAnswerStr = indices
+            .map((idx) => q.options?.[idx] || "")
+            .filter(Boolean);
+        }
+
+        return {
+          id: q._id,
+          type: q.type,
+          question: q.question,
+          options: q.options,
+          clozeLength:
+            q.type === "cloze" && Array.isArray(q.correctAnswer)
+              ? (q.correctAnswer as number[]).length
+              : undefined,
+          correctAnswer: correctAnswerStr,
+          source: q.source,
+          explanation: q.explanation,
+        };
+      });
+
+      setQuestions(uiQuestions);
+      setApiQuestions(apiQuestions); // 保存 API 題目資料以便提交時使用
+
+      console.log(
+        "[QuizPage] 題目載入完成",
+        new Date().toISOString(),
+        `題數 ${apiQuestions.length}`,
+        `耗時 ${(performance.now() - startTime).toFixed(0)} ms`
+      );
+
+      setError(null);
+    } catch (err: any) {
+      console.error("載入題目失敗（所有重試都失敗）:", err);
+      setConnectionError(true);
+      setError(err.message || "無法連接到伺服器");
+      console.log(
+        "[QuizPage] 題目載入失敗（所有重試都失敗）",
+        new Date().toISOString()
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 載入題目
+  useEffect(() => {
     loadQuestions();
   }, [books, difficulty]);
 
   // 手動重試函數
-  const handleRetry = () => {
-    setConnectionError(false);
-    setError(null);
-    setLoading(true);
+  const handleRetry = async () => {
     setRetryCount((prev) => prev + 1);
-    // 觸發 useEffect 重新載入
-    window.location.reload();
+    console.log("[QuizPage] 手動重試：重新載入題目", `重試次數: ${retryCount + 1}`);
+    await loadQuestions();
   };
 
   const questionsPerPage = 5;
