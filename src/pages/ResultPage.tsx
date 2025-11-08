@@ -206,8 +206,12 @@ export function ResultPage({
         1
       )}% 🌿`;
 
-      // 方案 1: 使用 Web Share API 分享圖片（支援手機）
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      // 方案 1: 使用 Web Share API 分享圖片（僅在行動裝置上啟用）
+      if (
+        isMobile &&
+        navigator.share &&
+        navigator.canShare?.({ files: [file] })
+      ) {
         try {
           await navigator.share({
             title: "醫療靈媒隨堂測驗",
@@ -223,10 +227,20 @@ export function ResultPage({
         }
       }
 
-      // 方案 2: 桌面版 - 複製圖片到剪貼簿 + 下載 + 開啟 Facebook
+      const downloadImage = (blobToDownload: Blob) => {
+        const url = URL.createObjectURL(blobToDownload);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "medical-medium-quiz-result.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      };
+
+      // 方案 2: 桌面版 - 複製圖片到剪貼簿並依使用者選擇開啟 Facebook 或下載
       let copiedToClipboard = false;
 
-      // 嘗試複製圖片到剪貼簿（Chrome/Edge 支援）
       try {
         if (navigator.clipboard && window.ClipboardItem) {
           const clipboardItem = new ClipboardItem({ "image/png": blob });
@@ -237,38 +251,27 @@ export function ResultPage({
         console.log("複製到剪貼簿失敗（部分瀏覽器不支援）:", clipboardErr);
       }
 
-      // 下載圖片
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "medical-medium-quiz-result.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      if (!copiedToClipboard) {
+        const shouldDownload = confirm(
+          "⚠️ 瀏覽器無法自動複製到剪貼簿。\n\n按「確定」下載圖片到本機，按「取消」將開啟 Facebook 首頁。"
+        );
 
-      // 根據是否成功複製到剪貼簿，顯示不同的提示訊息
-      let message = "";
-      if (copiedToClipboard) {
-        message =
-          "✅ 成功！\n\n" +
-          "📋 圖片已複製到剪貼簿\n" +
-          "💾 圖片已下載到您的電腦\n\n" +
-          "是否要開啟 Facebook 發文頁面？\n" +
-          "（在 Facebook 貼文框中按 Ctrl+V 即可貼上圖片）";
-      } else {
-        message =
-          "✅ 圖片已下載！\n\n" +
-          "是否要開啟 Facebook 發文頁面？\n" +
-          "（您可以在 Facebook 上傳剛才下載的圖片）";
+        if (shouldDownload) {
+          downloadImage(blob);
+        } else {
+          window.open("https://www.facebook.com/", "_blank");
+        }
+        return;
       }
 
-      const shouldOpenFB = confirm(message);
+      const shouldOpenFB = confirm(
+        "✅ 成績截圖已複製到剪貼簿！\n\n是否要立即開啟 Facebook 首頁？\n按「確定」開啟 Facebook，按「取消」則下載圖片到本機。"
+      );
 
       if (shouldOpenFB) {
-        // 開啟 Facebook 首頁
-        // 使用者可以點擊「你在想什麼？」來創建貼文
         window.open("https://www.facebook.com/", "_blank");
+      } else {
+        downloadImage(blob);
       }
     } catch (err) {
       console.error("生成分享圖片失敗:", err);
@@ -556,7 +559,7 @@ export function ResultPage({
               "
             >
               <Share2 className="w-4 h-4 mr-2" />
-              {isGeneratingImage ? "生成圖片中..." : "分享到 Facebook"}
+              {isGeneratingImage ? "生成圖片中..." : "儲存成績截圖"}
             </Button>
             <Button
               onClick={onRestart}
