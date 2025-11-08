@@ -9,6 +9,7 @@ import { FloatingHerbs } from "../components/FloatingHerbs";
 import { NaturalPattern } from "../components/NaturalPattern";
 import { ChevronLeft, ChevronRight, Home, Pause, Sparkles } from "lucide-react";
 import { useIsMobile } from "../utils/useIsMobile";
+import { CeleryJuiceLoading } from "../components/CeleryJuiceLoading";
 import {
   fetchQuizQuestions,
   fetchMixedQuizQuestions,
@@ -190,7 +191,10 @@ export function QuizPage({
   // 手動重試函數
   const handleRetry = async () => {
     setRetryCount((prev) => prev + 1);
-    console.log("[QuizPage] 手動重試：重新載入題目", `重試次數: ${retryCount + 1}`);
+    console.log(
+      "[QuizPage] 手動重試：重新載入題目",
+      `重試次數: ${retryCount + 1}`
+    );
     await loadQuestions();
   };
 
@@ -439,10 +443,7 @@ export function QuizPage({
         <FloatingHerbs />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Sparkles className="w-12 h-12 text-[#A8CBB7] animate-pulse mx-auto mb-4" />
-            <p className="text-[#636e72] text-lg">正在載入題目...</p>
-          </div>
+          <CeleryJuiceLoading />
         </div>
       </div>
     );
@@ -609,9 +610,9 @@ export function QuizPage({
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                className="text-[#636e72] hover:text-[#A8CBB7] hover:bg-[#F7E6C3]/20"
+                className="text-[#636e72] hover:text-[#A8CBB7] hover:bg-[#F7E6C3]/20 w-12 h-12"
               >
-                <Home className="w-5 h-5" />
+                <Home className="w-6 h-6" style={{ width: "24px", height: "24px" }} />
               </Button>
             </div>
           </div>

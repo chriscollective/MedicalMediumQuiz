@@ -136,7 +136,7 @@ export function LandingPage({
                   px-8 py-6 rounded-2xl cursor-pointer transition-all duration-300
                   ${
                     difficulty === "advanced"
-                      ? "bg-linear-to-r from-[#E5C17A] to-[#d4b86a] text-white shadow-lg hover:shadow-xl"
+                      ? "bg-gradient-to-r from-[#E5C17A] to-[#d4b86a] text-white shadow-lg hover:shadow-xl"
                       : "border-[#E5C17A] text-[#2d3436] hover:bg-[#F7E6C3]/20"
                   }
                 `}
