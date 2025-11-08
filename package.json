@@ -79,7 +79,7 @@
     "server": "nodemon --watch server/src --ext ts --exec tsx server/src/server.ts",
     "server:build": "tsc -p server/tsconfig.json",
     "server:start": "node server/dist/server.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "dev:all": "chcp 65001 >nul & concurrently \"npm run dev\" \"npm run server\"",
     "migrate:questions": "tsx server/src/scripts/migrate-questions.ts"
   }
 }

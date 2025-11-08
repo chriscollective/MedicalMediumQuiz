@@ -223,7 +223,21 @@ export function ResultPage({
         }
       }
 
-      // 方案 2: 下載圖片
+      // 方案 2: 桌面版 - 複製圖片到剪貼簿 + 下載 + 開啟 Facebook
+      let copiedToClipboard = false;
+
+      // 嘗試複製圖片到剪貼簿（Chrome/Edge 支援）
+      try {
+        if (navigator.clipboard && window.ClipboardItem) {
+          const clipboardItem = new ClipboardItem({ "image/png": blob });
+          await navigator.clipboard.write([clipboardItem]);
+          copiedToClipboard = true;
+        }
+      } catch (clipboardErr) {
+        console.log("複製到剪貼簿失敗（部分瀏覽器不支援）:", clipboardErr);
+      }
+
+      // 下載圖片
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -233,9 +247,29 @@ export function ResultPage({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      alert(
-        "✅ 圖片已下載！\n\n您可以將下載的圖片分享到 Facebook 或其他社群平台。"
-      );
+      // 根據是否成功複製到剪貼簿，顯示不同的提示訊息
+      let message = "";
+      if (copiedToClipboard) {
+        message =
+          "✅ 成功！\n\n" +
+          "📋 圖片已複製到剪貼簿\n" +
+          "💾 圖片已下載到您的電腦\n\n" +
+          "是否要開啟 Facebook 發文頁面？\n" +
+          "（在 Facebook 貼文框中按 Ctrl+V 即可貼上圖片）";
+      } else {
+        message =
+          "✅ 圖片已下載！\n\n" +
+          "是否要開啟 Facebook 發文頁面？\n" +
+          "（您可以在 Facebook 上傳剛才下載的圖片）";
+      }
+
+      const shouldOpenFB = confirm(message);
+
+      if (shouldOpenFB) {
+        // 開啟 Facebook 首頁
+        // 使用者可以點擊「你在想什麼？」來創建貼文
+        window.open("https://www.facebook.com/", "_blank");
+      }
     } catch (err) {
       console.error("生成分享圖片失敗:", err);
       alert("生成分享圖片失敗，請稍後再試");
