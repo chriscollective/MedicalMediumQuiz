@@ -551,28 +551,20 @@ export function ResultPage({
               disabled={isGeneratingImage}
               variant="outline"
               className="
-                border-[#E5C17A] text-[#E5C17A]
-                hover:bg-[#E5C17A] hover:text-white
+                border-[#E5C17A] text-white
+                bg-[#E5C17A]
+                hover:text 
+                hover:shadow-lg
+             
                 rounded-xl px-6
                 transition-all duration-300
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
               <Share2 className="w-4 h-4 mr-2" />
-              {isGeneratingImage ? "生成圖片中..." : "儲存成績截圖"}
+              {isGeneratingImage ? "生成圖片中..." : "分享到FaceBook"}
             </Button>
-            <Button
-              onClick={onRestart}
-              className="
-                bg-gradient-to-r from-[#A8CBB7] to-[#9fb8a8]
-                text-white rounded-xl px-6
-                hover:shadow-lg
-                transition-all duration-300
-              "
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              重新挑戰
-            </Button>
+
             <Button
               onClick={onHome}
               variant="outline"
