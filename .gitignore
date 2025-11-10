@@ -45,10 +45,17 @@ Thumbs.db
 *.temp
 .cache
 
+# Database backups
+server/backups/
+backups/
+*.dump
+*.bson
+
 # Sensitive admin scripts (contains credentials)
 server/src/scripts/reset-admin.ts
 server/src/scripts/seed-admin.ts
 server/src/scripts/create-admin.ts
+server/src/scripts/seed-add-admins.ts
 
 # Load testing assets
 artillery.yml
