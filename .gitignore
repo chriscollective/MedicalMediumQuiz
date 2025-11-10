@@ -55,7 +55,7 @@ backups/
 server/src/scripts/reset-admin.ts
 server/src/scripts/seed-admin.ts
 server/src/scripts/create-admin.ts
-server/src/scripts/seed-add-admins.ts
+
 
 # Load testing assets
 artillery.yml
