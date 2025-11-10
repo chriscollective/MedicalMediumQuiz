@@ -662,6 +662,13 @@
   .right-20 {
     right: calc(var(--spacing) * 20);
   }
+  .right-40 {
+    right: calc(var(--spacing) * 40);
+  }
+
+  .right-60 {
+    right: calc(var(--spacing) * 60);
+  }
 
   .-bottom-2 {
     bottom: calc(var(--spacing) * -2);

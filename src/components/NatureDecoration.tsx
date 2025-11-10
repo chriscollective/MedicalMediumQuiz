@@ -23,43 +23,43 @@ const floatingAnimation = {
 export function NatureDecoration() {
   const elements: NatureElement[] = [
     {
-      src: "https://images.pexels.com/photos/5961370/pexels-photo-5961370.jpeg",
-      alt: "celery",
+      src: "https://www.medicalmedium.com/blog-images-optimised/Advanced-Heavy-Metal-Detox-Smoothie.jpg",
+      alt: "Smoothie",
       size: 180,
       rotation: -15,
       delay: 0,
     },
     {
-      src: "https://thumbs.dreamstime.com/z/%E7%BA%A2%E6%95%B4%E5%88%87%E6%9E%9C%E5%8F%B6%E8%8A%B1%E7%95%AA%E8%8C%84%E6%A4%8D%E7%89%A9-%E6%B0%B4%E5%BD%A9%E7%BB%98%E8%94%AC%E8%8F%9C%E5%89%AA%E8%B4%B4%E7%94%BB-%E7%BA%A2%E6%95%B4%E5%88%87%E7%89%87%E6%9E%9C%E5%8F%B6%E8%8A%B1%E7%95%AA%E8%8C%84%E6%A4%8D%E7%89%A9-376923630.jpg?ct=jpeg",
-      alt: "blueberries",
+      src: "https://www.medicalmedium.com/blog-images-optimised/asparagus-salad-recipe.jpg",
+      alt: "salad",
       size: 140,
       rotation: 10,
       delay: 1,
     },
     {
-      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyUiDOGhkCvMCYXozGXvcGxMrNeyZg1hxTZa76OkvuGFDZi5pu-racDOXkGNP0z2Pr7go&usqp=CAU",
-      alt: "lemon",
+      src: "https://www.medicalmedium.com/blog-images-optimised/Berry-Salad.jpg",
+      alt: "Salad",
       size: 120,
       rotation: -20,
       delay: 2,
     },
     {
-      src: "https://thumbs.dreamstime.com/z/%E6%A4%8D%E7%89%A9%E7%9A%84%E4%BE%8B%E8%AF%81-113467997.jpg?ct=jpeg",
+      src: "https://www.medicalmedium.com/blog-images-optimised/avocado-cilantro-dressing.jpg",
       alt: "herbs",
       size: 160,
       rotation: 15,
       delay: 1.5,
     },
     {
-      src: "https://images.unsplash.com/photo-1613291511109-ea3d67e68a25?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aWxkZmxvd2VycyUyMHBhc3RlbHxlbnwxfHx8fDE3NjE4MDg1NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      alt: "wildflowers",
+      src: "https://www.medicalmedium.com/blog-images-optimised/recipes/cherry-lime-smoothie.jpg",
+      alt: "cherry",
       size: 150,
       rotation: 8,
       delay: 0.5,
     },
     {
-      src: "https://images.unsplash.com/photo-1548808918-a33260f83b25?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXBheWElMjBmcnVpdCUyMGJvdGFuaWNhbHxlbnwxfHx8fDE3NjE4MDg1NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      alt: "papaya",
+      src: "https://www.medicalmedium.com/blog-images-optimised/how-to-make-celery-juice.jpg",
+      alt: "celery",
       size: 130,
       rotation: -12,
       delay: 2.5,
@@ -203,7 +203,7 @@ export function NatureDecoration() {
 
       {/* Bottom Right */}
       <motion.div
-        className="absolute bottom-32 right-20 pointer-events-none"
+        className="absolute bottom-20 right-60 pointer-events-none"
         animate={floatingAnimation}
         style={{ animationDelay: `${elements[5].delay}s` }}
       >
