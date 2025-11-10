@@ -5,6 +5,7 @@ import { ResultPage } from "./pages/ResultPage";
 import { Question } from "./components/QuestionCard";
 import { getToken, getCurrentUser } from "./services/authService";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
+import { SEO } from "./components/SEO";
 
 // ============================================
 // Code Splitting: 按需載入頁面（減少初始 bundle 大小）
@@ -203,8 +204,49 @@ function App() {
     localStorage.setItem("adminCurrentPage", page);
   };
 
+  // 根據當前頁面返回對應的 SEO 設定
+  const getSEOProps = () => {
+    switch (currentPage) {
+      case "landing":
+        return {
+          title: "醫療靈媒隨堂測驗 | Medical Medium Quiz",
+          description: "測試您對醫療靈媒書籍的理解程度，挑戰初階或進階題目，獲得專屬等級評定！",
+        };
+      case "quiz":
+        return {
+          title: `正在測驗 - 醫療靈媒隨堂測驗`,
+          description: `正在進行${quizState.books.join("、")}的${quizState.difficulty === "beginner" ? "初階" : "進階"}測驗`,
+        };
+      case "result":
+        return {
+          title: "測驗結果 - 醫療靈媒隨堂測驗",
+          description: `您答對了 ${quizState.score} / ${quizState.totalQuestions} 題！查看您的等級評定與錯題解析。`,
+        };
+      case "leaderboard":
+        return {
+          title: "排行榜 - 醫療靈媒隨堂測驗",
+          description: "查看各書籍測驗的排行榜，看看您在全球玩家中的排名！",
+        };
+      case "about":
+        return {
+          title: "關於我們 - 醫療靈媒隨堂測驗",
+          description: "了解醫療靈媒隨堂測驗的使命與目標",
+        };
+      case "privacy-policy":
+        return {
+          title: "隱私權政策 - 醫療靈媒隨堂測驗",
+          description: "醫療靈媒隨堂測驗的隱私權政策與使用條款",
+        };
+      default:
+        return {};
+    }
+  };
+
   return (
     <div className="min-h-screen">
+      {/* SEO Meta 標籤 */}
+      <SEO {...getSEOProps()} />
+
       {/* 核心頁面：立即載入（不需要 Suspense） */}
       {currentPage === "landing" && (
         <LandingPage

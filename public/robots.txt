@@ -1,0 +1,24 @@
+# robots.txt for 醫療靈媒隨堂測驗
+
+User-agent: *
+Allow: /
+
+# 不允許爬取管理後台
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap 位置（部署後請更新為實際網址）
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# 常見爬蟲
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# 爬取延遲（避免過度請求）
+Crawl-delay: 1

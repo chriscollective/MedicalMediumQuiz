@@ -88,7 +88,12 @@ export function About({ onBack }: AboutProps) {
             <CardContent className="text-[#2d3436]">
               本站內容僅供教育與自我檢測，不構成任何醫療建議、診斷或治療。如有健康疑慮，請諮詢合格醫療人員。
               <br />
-              本站與原作者或出版社無任何關聯或授權。若有版權疑慮請聯繫站長，站長會立即處理。
+              本站與原作者或出版社無任何關聯或授權。
+              <p>
+                所有內容僅供<strong>學習參考</strong>， 如需準確資訊，請
+                <strong>購買並閱讀正版書籍</strong>。
+              </p>
+              <p>若有版權疑慮，請透過「問題回報」聯繫站長，站長會立即處理。</p>
             </CardContent>
           </Card>
 

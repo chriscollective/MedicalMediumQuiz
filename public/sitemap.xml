@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- 首頁 / 書籍選擇頁 -->
+  <url>
+    <loc>https://yourdomain.com/</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 排行榜頁面（公開可訪問） -->
+  <url>
+    <loc>https://yourdomain.com/leaderboard</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!--
+    注意：以下頁面為 SPA 內部路由，實際上都指向同一個 HTML
+    但列在 sitemap 可幫助搜尋引擎理解網站結構
+
+    不包含的頁面：
+    - /quiz (需要先選擇書籍，無法直接訪問)
+    - /result (需要完成測驗，無法直接訪問)
+    - /admin* (管理後台，已在 robots.txt 禁止)
+  -->
+
+</urlset>
