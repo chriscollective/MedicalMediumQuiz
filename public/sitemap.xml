@@ -4,7 +4,7 @@
 
   <!-- 首頁 / 書籍選擇頁 -->
   <url>
-    <loc>https://yourdomain.com/</loc>
+    <loc>https://mmquiz.vercel.app/</loc>
     <lastmod>2025-11-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -12,7 +12,7 @@
 
   <!-- 排行榜頁面（公開可訪問） -->
   <url>
-    <loc>https://yourdomain.com/leaderboard</loc>
+    <loc>https://mmquiz.vercel.app/</loc>
     <lastmod>2025-11-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
