@@ -41,6 +41,7 @@ interface QuizState {
   books: string[];
   difficulty: "beginner" | "advanced";
   answers: Record<string, string | string[]>;
+  quizId: string;  // 🔒 新增：測驗 ID（用於安全驗證排行榜）
   score: number;
   totalQuestions: number;
   wrongQuestions: Array<{
@@ -93,6 +94,7 @@ function App() {
     books: [],
     difficulty: "beginner",
     answers: {},
+    quizId: '',  // 初始為空
     score: 0,
     totalQuestions: 0,
     wrongQuestions: [],
@@ -149,6 +151,7 @@ function App() {
       books,
       difficulty,
       answers: {},
+      quizId: '',  // 初始為空，完成測驗後才會有值
       score: 0,
       totalQuestions: QUIZ_TOTAL_QUESTIONS,
       wrongQuestions: [],
@@ -157,6 +160,7 @@ function App() {
   };
 
   const handleQuizComplete = (result: {
+    quizId: string;  // 🔒 新增：測驗 ID
     score: number;
     totalQuestions: number;
     wrongQuestions: Array<{
@@ -167,6 +171,7 @@ function App() {
   }) => {
     setQuizState((prev) => ({
       ...prev,
+      quizId: result.quizId,  // 🔒 儲存 quizId 用於排行榜驗證
       answers: result.answers,
       score: result.score,
       totalQuestions: result.totalQuestions,
@@ -272,6 +277,7 @@ function App() {
 
       {currentPage === "result" && (
         <ResultPage
+          quizId={quizState.quizId}  // 🔒 傳遞 quizId 用於安全驗證
           score={quizState.score}
           totalQuestions={quizState.totalQuestions}
           wrongQuestions={quizState.wrongQuestions}

@@ -20,6 +20,7 @@ import { Question as ApiQuestion } from "../types/question";
 import { getBookByDisplay, getDifficultyByKey } from "../constants/books";
 
 interface QuizResult {
+  quizId: string;  // 🔒 新增：測驗 ID（用於安全驗證排行榜）
   score: number;
   totalQuestions: number;
   wrongQuestions: Array<{
@@ -356,8 +357,9 @@ export function QuizPage({
         });
       }
 
-      // 傳遞完整結果給 onComplete
+      // 傳遞完整結果給 onComplete（包含 quizId 用於安全驗證）
       onComplete({
+        quizId: result.quizId,  // 🔒 傳遞 quizId 用於防止分數偽造
         score: result.correctCount,
         totalQuestions: result.totalQuestions,
         wrongQuestions,
@@ -400,7 +402,9 @@ export function QuizPage({
         }
       });
 
+      // ⚠️ API 失敗時使用本地計算，但不提供 quizId（無法上榜）
       onComplete({
+        quizId: '',  // 空字串表示無法上榜（沒有後端驗證的分數）
         score,
         totalQuestions: questions.length,
         wrongQuestions,

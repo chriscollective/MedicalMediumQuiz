@@ -17,21 +17,31 @@ app.use('/api/admin', adminRouter);
 
 describe('Admin API - POST /api/admin/login', () => {
   beforeAll(async () => {
-    // 連接測試資料庫（使用記憶體資料庫）
-    const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mmquiz-test';
-    if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(MONGO_URI);
+    // ⚠️ 強制使用測試資料庫，絕不連接生產環境！
+    const TEST_MONGO_URI = 'mongodb://localhost:27017/mmquiz-test';
+
+    // 斷開現有連接（如果有的話）
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
     }
+
+    // 連接到測試資料庫
+    await mongoose.connect(TEST_MONGO_URI);
+    console.log('✅ 測試：已連接到測試資料庫 (mmquiz-test)');
+
+    // 清空測試資料庫
+    await Admin.deleteMany({});
   });
 
   afterAll(async () => {
-    // 清理並斷開連接
+    // 清理測試資料
     await Admin.deleteMany({});
     await mongoose.connection.close();
+    console.log('✅ 測試：已清理測試資料庫並斷開連接');
   });
 
   beforeEach(async () => {
-    // 每個測試前清空資料
+    // 每個測試前清空資料（只清空測試資料庫）
     await Admin.deleteMany({});
   });
 

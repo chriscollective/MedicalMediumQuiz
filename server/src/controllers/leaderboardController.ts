@@ -59,19 +59,32 @@ function compareScores(
 /**
  * 檢查是否上榜
  * POST /api/leaderboard/check
- * Body: { userId, book, difficulty, score }
+ * Body: { quizId }  ⚠️ 不再接受 score，從 Quiz 查詢真實分數
  */
 export async function checkLeaderboard(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, book, difficulty, score } = req.body;
+    const { quizId } = req.body;
 
-    if (!userId || !book || !difficulty || score === undefined) {
+    if (!quizId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields'
+        error: 'Missing quizId'
       });
     }
 
+    // 🔒 從 Quiz 查詢真實分數（防止偽造）
+    const Quiz = (await import('../models/Quiz')).default;
+    const quiz = await Quiz.findById(quizId);
+
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        error: 'Quiz not found'
+      });
+    }
+
+    // 使用資料庫的真實數據
+    const { userId, book, difficulty, totalScore: score } = quiz;
     const grade = calculateGrade(score);
     const newScore = {
       grade,
@@ -163,24 +176,37 @@ export async function checkLeaderboard(req: Request, res: Response, next: NextFu
 /**
  * 提交榜單名稱並更新榜單
  * POST /api/leaderboard/submit
- * Body: { userId, book, difficulty, score, displayName }
+ * Body: { quizId, displayName }  ⚠️ 不再接受 score，從 Quiz 查詢真實分數
  */
 export async function submitLeaderboard(req: Request, res: Response, next: NextFunction) {
   try {
     console.log('📝 提交榜單請求:', req.body);
-    const { userId, book, difficulty, score, displayName } = req.body;
+    const { quizId, displayName } = req.body;
 
-    if (!userId || !book || !difficulty || score === undefined || !displayName) {
+    if (!quizId || !displayName) {
       console.log('❌ 缺少必要欄位');
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields'
+        error: 'Missing required fields: quizId and displayName'
       });
     }
 
+    // 🔒 從 Quiz 查詢真實分數（防止偽造）
+    const Quiz = (await import('../models/Quiz')).default;
+    const quiz = await Quiz.findById(quizId);
+
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        error: 'Quiz not found'
+      });
+    }
+
+    // 使用資料庫的真實數據
+    const { userId, book, difficulty, totalScore: score } = quiz;
     const grade = calculateGrade(score);
     const now = new Date();
-    console.log('✅ 計算等級:', grade, '分數:', score);
+    console.log('✅ 從 Quiz 查詢:', { quizId, userId, book, difficulty, score, grade });
 
     // 1. 取得該書籍目前的所有榜單記錄
     const currentLeaderboard = await Leaderboard.find({ book }).lean();

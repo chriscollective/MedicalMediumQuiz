@@ -24,37 +24,27 @@ export interface SubmitLeaderboardResponse {
 
 /**
  * 檢查是否上榜
+ * 🔒 安全修復：使用 quizId 而不是 score（防止偽造分數）
  */
 export async function checkLeaderboard(
-  userId: string,
-  book: string,
-  difficulty: string,
-  score: number
+  quizId: string
 ): Promise<CheckLeaderboardResponse> {
   const response = await api.post('/leaderboard/check', {
-    userId,
-    book,
-    difficulty,
-    score
+    quizId
   });
   return response.data.data;
 }
 
 /**
  * 提交榜單名稱
+ * 🔒 安全修復：使用 quizId 而不是 score（防止偽造分數）
  */
 export async function submitLeaderboard(
-  userId: string,
-  book: string,
-  difficulty: string,
-  score: number,
+  quizId: string,
   displayName: string
 ): Promise<SubmitLeaderboardResponse> {
   const response = await api.post('/leaderboard/submit', {
-    userId,
-    book,
-    difficulty,
-    score,
+    quizId,
     displayName
   });
   return response.data.data;

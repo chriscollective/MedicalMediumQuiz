@@ -30,6 +30,7 @@ import {
 } from "../data/mmContent";
 
 interface ResultPageProps {
+  quizId: string;  // 🔒 新增：測驗 ID（用於安全驗證排行榜）
   score: number;
   totalQuestions: number;
   wrongQuestions: Array<{
@@ -66,6 +67,7 @@ const gradeMessages = {
 };
 
 export function ResultPage({
+  quizId,  // 🔒 接收 quizId
   score,
   totalQuestions,
   wrongQuestions,
@@ -124,21 +126,17 @@ export function ResultPage({
   // 用於截圖的隱藏區域 ref
   const shareImageRef = useRef<HTMLDivElement>(null);
 
-  // 檢查是否上榜
+  // 檢查是否上榜（只有當 quizId 存在時才能上榜）
   useEffect(() => {
     const checkIfQualified = async () => {
-      try {
-        // 決定書籍類別（單本或綜合）
-        let bookCategory = books.length > 1 ? "綜合" : books[0];
-        // 移除書名號
-        bookCategory = bookCategory.replace(/《|》/g, "");
+      // 🔒 沒有 quizId 表示測驗沒有成功提交到後端，無法上榜
+      if (!quizId) {
+        console.log('⚠️ 無 quizId，無法檢查榜單');
+        return;
+      }
 
-        const result = await checkLeaderboard(
-          userId,
-          bookCategory,
-          difficulty,
-          percentage
-        );
+      try {
+        const result = await checkLeaderboard(quizId);
 
         if (result.qualified && result.rank) {
           setLeaderboardRank(result.rank);
@@ -150,22 +148,16 @@ export function ResultPage({
     };
 
     checkIfQualified();
-  }, [userId, books, difficulty, percentage]);
+  }, [quizId]);  // 依賴改為 quizId
 
   const handleSubmitLeaderboard = async (displayName: string) => {
+    // 🔒 沒有 quizId 無法提交榜單
+    if (!quizId) {
+      throw new Error("無法提交榜單：測驗資料異常");
+    }
+
     try {
-      let bookCategory = books.length > 1 ? "綜合" : books[0];
-      // 移除書名號
-      bookCategory = bookCategory.replace(/《|》/g, "");
-
-      await submitLeaderboard(
-        userId,
-        bookCategory,
-        difficulty,
-        percentage,
-        displayName
-      );
-
+      await submitLeaderboard(quizId, displayName);
       alert("恭喜！你的成績已成功登上榜單！");
     } catch (error) {
       console.error("提交榜單失敗:", error);
