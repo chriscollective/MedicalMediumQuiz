@@ -4,7 +4,10 @@ export function useIsMobile(maxWidth = 1024) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
       return;
     }
     const query = `(max-width: ${maxWidth}px)`;
@@ -19,4 +22,3 @@ export function useIsMobile(maxWidth = 1024) {
 
   return { isMobile };
 }
-
