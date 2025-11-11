@@ -14,6 +14,7 @@ interface LandingPageProps {
   onAdminClick?: () => void;
   onLeaderboardClick?: () => void;
   onAboutClick?: () => void;
+  onCorrectionNoticeClick?: () => void;
   onPrivacyClick?: () => void;
 }
 
@@ -22,6 +23,7 @@ export function LandingPage({
   onAdminClick,
   onLeaderboardClick,
   onAboutClick,
+  onCorrectionNoticeClick,
   onPrivacyClick,
 }: LandingPageProps) {
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
@@ -202,6 +204,13 @@ export function LandingPage({
             onClick={onLeaderboardClick}
           >
             榮耀排行榜
+          </span>
+          <span>｜</span>
+          <span
+            className="hover:text-[#A8CBB7] cursor-pointer transition-colors"
+            onClick={onCorrectionNoticeClick}
+          >
+            修正公告
           </span>
           <span>｜</span>
           <span

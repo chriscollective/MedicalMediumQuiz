@@ -21,6 +21,7 @@ const ReportManagement = lazy(() => import("./pages/ReportManagement").then(m =>
 // 次要頁面（不是核心測驗流程）
 const Leaderboard = lazy(() => import("./pages/Leaderboard").then(m => ({ default: m.Leaderboard })));
 const About = lazy(() => import("./pages/About").then(m => ({ default: m.About })));
+const CorrectionNotice = lazy(() => import("./pages/CorrectionNotice").then(m => ({ default: m.CorrectionNotice })));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
 
 type AppPage =
@@ -35,6 +36,7 @@ type AppPage =
   | "reports"
   | "settings"
   | "about"
+  | "correction-notice"
   | "privacy-policy";
 
 interface QuizState {
@@ -131,6 +133,7 @@ function App() {
     if (
       currentPage === "about" ||
       currentPage === "leaderboard" ||
+      currentPage === "correction-notice" ||
       currentPage === "privacy-policy" ||
       currentPage === "result"
     ) {
@@ -237,6 +240,11 @@ function App() {
           title: "關於我們 - 醫療靈媒隨堂測驗",
           description: "了解醫療靈媒隨堂測驗的使命與目標",
         };
+      case "correction-notice":
+        return {
+          title: "修正公告 - 醫療靈媒隨堂測驗",
+          description: "查看最新的題目修正與更新公告",
+        };
       case "privacy-policy":
         return {
           title: "隱私權政策 - 醫療靈媒隨堂測驗",
@@ -262,6 +270,7 @@ function App() {
             setCurrentPage("leaderboard");
           }}
           onAboutClick={() => setCurrentPage("about")}
+          onCorrectionNoticeClick={() => setCurrentPage("correction-notice")}
           onPrivacyClick={() => setCurrentPage("privacy-policy")}
         />
       )}
@@ -328,6 +337,10 @@ function App() {
 
         {currentPage === "about" && (
           <About onBack={() => setCurrentPage("landing")} />
+        )}
+
+        {currentPage === "correction-notice" && (
+          <CorrectionNotice onBack={() => setCurrentPage("landing")} />
         )}
 
         {currentPage === "privacy-policy" && (
